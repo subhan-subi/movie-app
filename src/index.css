@@ -1,0 +1,30 @@
+.movie-search{
+    width:260px;
+    background:#222;
+    color:white;
+    border:1px solid #444;
+}
+
+
+.movie-search::placeholder{
+    color:#aaa;
+}
+
+
+.movie-search:focus{
+    background:#222;
+    color:white;
+    border-color:#ffc107;
+    box-shadow:none;
+}
+
+
+
+@media(max-width:768px){
+
+    .movie-search{
+        width:100%;
+        margin-top:15px;
+    }
+
+}
