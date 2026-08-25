@@ -4,14 +4,12 @@ import { WishlistContext } from "../context/WishlistContext";
 
 export function MovieCard({ movie }) {
   const { wishlist = [], addToWishlist, removetowishlist } = useContext(WishlistContext);
-
-  // Check karo ki movie wishlist me pehle se hai ya nahi
   const isWishlisted = wishlist.some((item) => item.id === movie.id);
 
   const handleWishlistToggle = (e) => {
     e.preventDefault();
     if (isWishlisted) {
-      removetowishlist(movie); // Aapka exact function call
+      removetowishlist(movie);
     } else {
       addToWishlist(movie);
     }
@@ -21,62 +19,59 @@ export function MovieCard({ movie }) {
     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
     : "https://via.placeholder.com/500x750?text=No+Poster";
 
+      const routePath = movie.media_type === "tv" || movie.isTV ? `/tv/${movie.id}` : `/movie/${movie.id}`;
+
   return (
     <div className="col-lg-3 col-md-4 col-sm-6 mb-4">
-      <div className="card h-100 shadow-sm border-0 rounded-3 overflow-hidden movie-card">
+      <div className="card h-100 bg-dark text-white shadow border border-secondary border-opacity-25 rounded-4 overflow-hidden position-relative group-hover">
         
-        {/* Movie Poster + Floating Heart Button */}
+        {/* Floating Wishlist Button */}
+        <button
+          onClick={handleWishlistToggle}
+          className={`btn btn-sm rounded-circle position-absolute top-0 end-0 m-3 shadow ${
+            isWishlisted ? "btn-danger text-white" : "btn-dark bg-opacity-75 text-white"
+          }`}
+          style={{ width: "36px", height: "36px", zIndex: 3 }}
+          aria-label="Toggle Wishlist"
+        >
+          {isWishlisted ? "❤️" : "🤍"}
+        </button>
+
+        {/* Poster Image */}
         <div className="position-relative overflow-hidden">
           <img
             src={posterUrl}
             alt={movie?.title || "Movie Poster"}
             className="card-img-top w-100 object-fit-cover"
-            style={{ height: "380px", transition: "transform 0.3s ease" }}
+            style={{ height: "360px", transition: "transform 0.4s ease" }}
             loading="lazy"
           />
-
-          {/* Heart Icon Button jo Add/Remove dono handle karega */}
-          <button
-            onClick={handleWishlistToggle}
-            className={`btn btn-sm rounded-circle position-absolute top-0 end-0 m-2 shadow ${
-              isWishlisted ? "btn-danger" : "btn-light"
-            }`}
-            style={{ width: "38px", height: "38px", zIndex: 2 }}
-            aria-label="Toggle Wishlist"
-          >
-            {isWishlisted ? "❤️" : "🤍"}
-          </button>
+          <div className="position-absolute bottom-0 start-0 m-3">
+            <span className="badge bg-warning text-dark fw-bold shadow-sm px-2 py-1">
+              ⭐ {movie?.vote_average ? movie.vote_average.toFixed(1) : "N/A"}
+            </span>
+          </div>
         </div>
 
-        {/* Card Content */}
+        {/* Content Body */}
         <div className="card-body d-flex flex-column justify-content-between p-3">
           <div>
-            <div className="d-flex justify-content-between align-items-center mb-2">
-              <h5 className="card-title fw-bold text-truncate mb-0" style={{ maxWidth: "70%" }}>
-                {movie?.title}
-              </h5>
-              <span className="badge bg-warning text-dark fw-semibold">
-                ⭐ {movie?.vote_average ? movie.vote_average.toFixed(1) : "N/A"}
-              </span>
-            </div>
-
-            <p className="card-text text-muted small">
-              {movie?.overview
-                ? movie.overview.length > 85
-                  ? `${movie.overview.slice(0, 85)}...`
-                  : movie.overview
-                : "No description available."}
+            <h6 className="card-title fw-bold text-truncate mb-2" title={movie?.title}>
+              {movie?.title}
+            </h6>
+            <p className="card-text text-secondary small line-clamp-2" style={{ height: "38px", overflow: "hidden" }}>
+              {movie?.overview || "No description available."}
             </p>
           </div>
 
-          {/* Details Button */}
           <div className="mt-3">
-            <Link to={`/movie/${movie?.id}`} className="btn btn-primary w-100 fw-semibold">
-              View Details
-            </Link>
+        
+
+<Link to={routePath} className="btn btn-outline-warning w-100 fw-semibold btn-sm rounded-pill">
+  View Details
+</Link>
           </div>
         </div>
-
       </div>
     </div>
   );

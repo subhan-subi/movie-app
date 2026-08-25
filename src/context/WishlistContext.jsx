@@ -1,45 +1,47 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useState, useEffect } from "react";
+import { useToast } from "./ToastContext";
+
 export const WishlistContext = createContext();
 
-export function WishlistProvider({children}){
-const [wishlist,setWishlist] = useState([]);
-  
-useEffect(()=>{
-  const savewishlist = localStorage.getItem("wishlist");
-  if(savewishlist){
-    setWishlist(JSON.parse(savewishlist));
-  }
-},[]);
- function addToWishlist(movie){
-  const addedWishlist = wishlist.find((item)=> item.id === movie.id);
-    if(addedWishlist){
-        alert("Movie already in wishlist");
-    } else {
-        alert("Movie added to wishlist");
-        const savdate = [...wishlist,movie];
-        setWishlist(savdate);
-        localStorage.setItem("wishlist",JSON.stringify(savdate));
+export function WishlistProvider({ children }) {
+  const { showToast } = useToast();
+
+  const [wishlist, setWishlist] = useState(() => {
+    try {
+      const saved = localStorage.getItem("wishlist");
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.error("Failed to parse wishlist", e);
+      return [];
     }
- }
- function removetowishlist(movie){
-    const remove = wishlist.filter((item)=> item.id !== movie.id);
-    if(remove){
-        alert("Movie removed from wishlist");
-    }
-      
-        setWishlist(remove);
-        localStorage.setItem("wishlist",JSON.stringify(remove));
-    
- }
-return (
-  <WishlistContext.Provider
-    value={{
-      wishlist,
-      addToWishlist,
-      removetowishlist
-    }}
-  >
-    {children}
-  </WishlistContext.Provider>
-)
+  });
+
+  useEffect(() => {
+    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+  }, [wishlist]);
+
+  const addToWishlist = (movie) => {
+    setWishlist((prev) => {
+      if (prev.some((item) => item.id === movie.id)) return prev;
+      showToast(`"${movie.title || movie.name}" added to Wishlist!`, "success");
+      return [...prev, movie];
+    });
+  };
+
+  const removetowishlist = (movie) => {
+    setWishlist((prev) => prev.filter((item) => item.id !== movie.id));
+    showToast(`Removed from Wishlist`, "danger");
+  };
+
+  return (
+    <WishlistContext.Provider
+      value={{
+        wishlist,
+        addToWishlist,
+        removetowishlist,
+      }}
+    >
+      {children}
+    </WishlistContext.Provider>
+  );
 }

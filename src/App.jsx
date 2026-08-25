@@ -7,6 +7,7 @@ import { SearchResults } from './pages/SearchResults'
 import { Movie } from './pages/Movie'
 import { Wishlist } from './pages/Wishlist'
 import {WishlistProvider} from './context/WishlistContext'
+import { TVShowDetails } from './pages/TVShowDetails'
 function App() {
    
      return(
@@ -31,8 +32,12 @@ function App() {
       </Route>
      
 
+  <Route path="/tv/:id" element={<TVShowDetails />} /> {/* <-- Add TV Show Route */}
+
+
 
     </Routes>
+
     </WishlistProvider>
 
   
