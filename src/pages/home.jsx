@@ -7,227 +7,486 @@ import {
   getMoviesByGenre,
   getPopularTVShows,
 } from "../Service/api";
+
 import { MovieCard } from "../components/MovieCard";
 import { HeroSlider } from "../components/HeroSlider";
 import { MovieSkeleton } from "../components/MovieSkeleton";
 
 export function Home() {
-  const [contentType, setContentType] = useState("movie"); // 'movie' or 'tv'
+  const [contentType, setContentType] = useState("movie");
+
   const [trending, setTrending] = useState([]);
   const [popular, setPopular] = useState([]);
   const [topRated, setTopRated] = useState([]);
   const [genres, setGenres] = useState([]);
-  const [selectedGenre, setSelectedGenre] = useState(null);
   const [genreMovies, setGenreMovies] = useState([]);
+
+  const [selectedGenre, setSelectedGenre] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [genreLoading, setGenreLoading] = useState(false);
 
-  // Fetch Data whenever contentType changes
+  // ==========================================
+  // LOAD HOME DATA
+  // ==========================================
+
   useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      setSelectedGenre(null); // Reset active genre on mode change
+    let mounted = true;
 
+    async function loadData() {
       try {
+        setLoading(true);
+        setSelectedGenre(null);
+        setGenreMovies([]);
+
         if (contentType === "movie") {
-          const [trendData, popData, topData, genreList] = await Promise.all([
+          const [
+            trendingData,
+            popularData,
+            topRatedData,
+            genreData,
+          ] = await Promise.all([
             getTrendingMovies(),
             getPopularMovies(),
             getTopRatedMovies(),
             getGenres(),
           ]);
-          setTrending(trendData);
-          setPopular(popData);
-          setTopRated(topData);
-          setGenres(genreList);
+
+          if (!mounted) return;
+
+          setTrending(trendingData || []);
+          setPopular(popularData || []);
+          setTopRated(topRatedData || []);
+          setGenres(genreData || []);
         } else {
-          // TV Shows Data
-          const [tvShows, genreList] = await Promise.all([
+          const [tvData, genreData] = await Promise.all([
             getPopularTVShows(),
-            getGenres(), // Note: TMDB provides TV genres, fallback works smoothly
+            getGenres(),
           ]);
-          // Standardize TV Show keys for compatibility with MovieCard
-          const formattedTV = tvShows.map((show) => ({
+
+          if (!mounted) return;
+
+          const formattedTV = (tvData || []).map((show) => ({
             ...show,
-            title: show.name, // TV shows use 'name' instead of 'title'
+            title: show.name,
             release_date: show.first_air_date,
+            media_type: "tv",
             isTV: true,
           }));
 
           setTrending(formattedTV);
           setPopular(formattedTV);
-          setTopRated(formattedTV.slice().reverse()); // Mock top-rated list for TV
-          setGenres(genreList);
+
+          // Keep a separate-looking list for UI
+          setTopRated(
+            [...formattedTV].sort(
+              (a, b) => (b.vote_average || 0) - (a.vote_average || 0)
+            )
+          );
+
+          setGenres(genreData || []);
         }
-      } catch (err) {
-        console.error("Failed to load home content", err);
+      } catch (error) {
+        console.error("Failed to load home content:", error);
+
+        if (mounted) {
+          setTrending([]);
+          setPopular([]);
+          setTopRated([]);
+          setGenres([]);
+        }
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     }
 
     loadData();
+
+    return () => {
+      mounted = false;
+    };
   }, [contentType]);
 
-  // Handle Genre Filter Click
+  // ==========================================
+  // GENRE FILTER
+  // ==========================================
+
   const handleGenreClick = async (genreId) => {
+    if (!genreId) {
+      setSelectedGenre(null);
+      setGenreMovies([]);
+      return;
+    }
+
     if (selectedGenre === genreId) {
       setSelectedGenre(null);
       setGenreMovies([]);
       return;
     }
-    setSelectedGenre(genreId);
-    setLoading(true);
 
-    if (contentType === "movie") {
-      const movies = await getMoviesByGenre(genreId);
-      setGenreMovies(movies);
-    } else {
-      // Filter local TV list if movie genre endpoint used
-      const filtered = popular.filter((item) =>
-        item.genre_ids?.includes(genreId)
-      );
-      setGenreMovies(filtered);
+    try {
+      setSelectedGenre(genreId);
+      setGenreLoading(true);
+
+      if (contentType === "movie") {
+        const results = await getMoviesByGenre(genreId);
+
+        setGenreMovies(
+          (results || []).map((movie) => ({
+            ...movie,
+            media_type: "movie",
+          }))
+        );
+      } else {
+        const filtered = popular.filter((show) =>
+          show.genre_ids?.includes(genreId)
+        );
+
+        setGenreMovies(filtered);
+      }
+    } catch (error) {
+      console.error("Genre filter error:", error);
+      setGenreMovies([]);
+    } finally {
+      setGenreLoading(false);
     }
-    setLoading(false);
   };
 
-  return (
-    <div className="bg-dark text-white min-vh-100 pb-5">
-      <div className="container py-3">
-        
-        {/* ================= Mode Toggle Switch ================= */}
-        <div className="d-flex justify-content-center mb-4">
+  // ==========================================
+  // CHANGE CONTENT TYPE
+  // ==========================================
+
+  const handleContentTypeChange = (type) => {
+    if (type === contentType) return;
+
+    setContentType(type);
+    setSelectedGenre(null);
+    setGenreMovies([]);
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  // ==========================================
+  // HELPER
+  // ==========================================
+
+  const prepareMovie = (item) => ({
+    ...item,
+    title: item.title || item.name,
+    media_type:
+      item.media_type ||
+      (contentType === "tv" ? "tv" : "movie"),
+    isTV: contentType === "tv",
+  });
+
+  // ==========================================
+  // LOADING SCREEN
+  // ==========================================
+
+  if (loading) {
+    return (
+      <div className="home-page bg-dark text-white min-vh-100">
+
+        <div className="container-fluid px-0">
           <div
-            className="p-1 rounded-pill bg-secondary bg-opacity-25 border border-secondary border-opacity-50 d-inline-flex gap-1"
-            style={{ backdropFilter: "blur(8px)" }}
-          >
-            <button
-              className={`btn btn-sm rounded-pill px-4 fw-bold transition-all ${
-                contentType === "movie"
-                  ? "btn-warning text-dark shadow"
-                  : "btn-link text-light text-decoration-none opacity-75"
-              }`}
-              onClick={() => setContentType("movie")}
-            >
-              🎬 Movies
-            </button>
-            <button
-              className={`btn btn-sm rounded-pill px-4 fw-bold transition-all ${
-                contentType === "tv"
-                  ? "btn-danger text-white shadow"
-                  : "btn-link text-light text-decoration-none opacity-75"
-              }`}
-              onClick={() => setContentType("tv")}
-            >
-              📺 TV Shows
-            </button>
-          </div>
+            className="home-hero-loading"
+            style={{
+              height: "520px",
+              background:
+                "linear-gradient(90deg, #111827, #1f2937, #111827)",
+            }}
+          />
         </div>
 
-        {/* ================= Hero Slider ================= */}
-        {!loading && trending.length > 0 && <HeroSlider movies={trending} />}
+        <div className="container py-5">
 
-        {/* ================= Categories / Genre Pills ================= */}
-        <div className="mb-5">
-          <h5 className="fw-bold text-warning mb-3">
-            🏷️ Browse {contentType === "movie" ? "Movie" : "TV"} Categories
-          </h5>
-          <div className="d-flex flex-wrap gap-2 pb-2">
-            <button
-              onClick={() => handleGenreClick(null)}
-              className={`btn btn-sm rounded-pill px-3 fw-semibold ${
-                selectedGenre === null
-                  ? "btn-warning"
-                  : "btn-outline-secondary text-light"
-              }`}
-            >
-              All {contentType === "movie" ? "Movies" : "Shows"}
-            </button>
-            {genres.map((genre) => (
-              <button
-                key={genre.id}
-                onClick={() => handleGenreClick(genre.id)}
-                className={`btn btn-sm rounded-pill px-3 fw-semibold ${
-                  selectedGenre === genre.id
-                    ? "btn-warning"
-                    : "btn-outline-secondary text-light"
-                }`}
-              >
-                {genre.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* ================= Content Grid / Skeleton Loaders ================= */}
-        {loading ? (
-          <div className="row g-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <MovieSkeleton key={i} />
-            ))}
-          </div>
-        ) : selectedGenre ? (
-          /* Filtered View */
-          <section className="mb-5">
-            <h3 className="fw-bold mb-4 border-start border-warning border-4 ps-3">
-              Filtered Results
-            </h3>
-            <div className="row g-4">
-              {genreMovies.map((item) => (
-                <MovieCard
-                  key={item.id}
-                  movie={{
-                    ...item,
-                    title: item.title || item.name,
-                    media_type: contentType,
-                  }}
-                />
-              ))}
+          <div className="mb-4">
+            <div className="placeholder-glow">
+              <span className="placeholder col-3 bg-secondary rounded"></span>
             </div>
-          </section>
-        ) : (
-          /* Main Sections */
-          <>
-            {/* Section 1: Popular */}
-            <section className="mb-5">
-              <h3 className="fw-bold border-start border-warning border-4 ps-3 mb-4">
-                🔥 Popular {contentType === "movie" ? "Movies" : "TV Shows"}
-              </h3>
-              <div className="row g-4">
-                {popular.slice(0, 8).map((item) => (
-                  <MovieCard
-                    key={item.id}
-                    movie={{
-                      ...item,
-                      title: item.title || item.name,
-                      media_type: contentType,
-                    }}
-                  />
-                ))}
-              </div>
-            </section>
+          </div>
 
-            {/* Section 2: Top Rated */}
-            <section className="mb-5">
-              <h3 className="fw-bold border-start border-warning border-4 ps-3 mb-4">
-                ⭐ Top Rated {contentType === "movie" ? "Movies" : "TV Shows"}
-              </h3>
+          <div className="row g-4">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <MovieSkeleton key={index} />
+            ))}
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // MAIN UI
+  // ==========================================
+
+  return (
+    <div className="home-page bg-dark text-white min-vh-100 pb-5">
+
+      {/* =====================================
+          CONTENT TYPE SWITCH
+      ====================================== */}
+
+     
+
+      {/* =====================================
+          FULL WIDTH HERO
+      ====================================== */}
+
+      {!loading && trending.length > 0 && (
+        <section className="home-hero-section">
+
+          <HeroSlider
+            movies={trending.map(prepareMovie)}
+          />
+
+        </section>
+      )}
+
+      {/* =====================================
+          MAIN CONTENT
+      ====================================== */}
+
+      <main className="container">
+
+        {/* ===================================
+            GENRES
+        ==================================== */}
+
+        {genres.length > 0 && (
+          <section className="genres-section py-4">
+
+            <div className="section-heading-row">
+
+              <div>
+                <span className="section-kicker">
+                  EXPLORE
+                </span>
+
+                <h2 className="section-title">
+                  Browse by Genre
+                </h2>
+              </div>
+
+              {selectedGenre && (
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-warning rounded-pill px-3"
+                  onClick={() => handleGenreClick(null)}
+                >
+                  Clear Filter
+                </button>
+              )}
+
+            </div>
+
+            <div className="genre-list">
+
+              <button
+                type="button"
+                className={`genre-btn ${
+                  selectedGenre === null ? "active" : ""
+                }`}
+                onClick={() => handleGenreClick(null)}
+              >
+                All
+              </button>
+
+              {genres.map((genre) => (
+                <button
+                  type="button"
+                  key={genre.id}
+                  className={`genre-btn ${
+                    selectedGenre === genre.id ? "active" : ""
+                  }`}
+                  onClick={() => handleGenreClick(genre.id)}
+                >
+                  {genre.name}
+                </button>
+              ))}
+
+            </div>
+
+          </section>
+        )}
+
+        {/* ===================================
+            FILTERED RESULTS
+        ==================================== */}
+
+        {selectedGenre !== null ? (
+
+          <section className="movie-section py-4">
+
+            <div className="section-heading-row mb-4">
+
+              <div>
+                <span className="section-kicker">
+                  FILTERED COLLECTION
+                </span>
+
+                <h2 className="section-title">
+                  {contentType === "movie"
+                    ? "Movies"
+                    : "TV Shows"}
+                </h2>
+              </div>
+
+              <span className="result-count">
+                {genreMovies.length} results
+              </span>
+
+            </div>
+
+            {genreLoading ? (
+
               <div className="row g-4">
-                {topRated.slice(0, 8).map((item) => (
+
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <MovieSkeleton key={index} />
+                ))}
+
+              </div>
+
+            ) : genreMovies.length > 0 ? (
+
+              <div className="row g-4">
+
+                {genreMovies.map((item) => (
                   <MovieCard
                     key={item.id}
-                    movie={{
-                      ...item,
-                      title: item.title || item.name,
-                      media_type: contentType,
-                    }}
+                    movie={prepareMovie(item)}
                   />
                 ))}
+
               </div>
-            </section>
+
+            ) : (
+
+              <div className="empty-results">
+                <div className="empty-icon">
+                  🎬
+                </div>
+
+                <h4>
+                  No results found
+                </h4>
+
+                <p>
+                  Try another genre.
+                </p>
+              </div>
+
+            )}
+
+          </section>
+
+        ) : (
+
+          /* =================================
+             NORMAL HOME SECTIONS
+          ================================== */
+
+          <>
+
+            {/* =================================
+                POPULAR
+            ================================== */}
+
+            {popular.length > 0 && (
+              <section className="movie-section py-4">
+
+                <div className="section-heading-row mb-4">
+
+                  <div>
+                    <span className="section-kicker">
+                      DON'T MISS
+                    </span>
+
+                    <h2 className="section-title">
+                      Popular{" "}
+                      {contentType === "movie"
+                        ? "Movies"
+                        : "TV Shows"}
+                    </h2>
+                  </div>
+
+                  <span className="section-icon">
+                    🔥
+                  </span>
+
+                </div>
+
+                <div className="row g-4">
+
+                  {popular
+                    .slice(0, 8)
+                    .map((item) => (
+                      <MovieCard
+                        key={item.id}
+                        movie={prepareMovie(item)}
+                      />
+                    ))}
+
+                </div>
+
+              </section>
+            )}
+
+            {/* =================================
+                TOP RATED
+            ================================== */}
+
+            {topRated.length > 0 && (
+              <section className="movie-section py-4">
+
+                <div className="section-heading-row mb-4">
+
+                  <div>
+                    <span className="section-kicker">
+                      HIGHEST RATED
+                    </span>
+
+                    <h2 className="section-title">
+                      Top Rated{" "}
+                      {contentType === "movie"
+                        ? "Movies"
+                        : "TV Shows"}
+                    </h2>
+                  </div>
+
+                  <span className="section-icon">
+                    ⭐
+                  </span>
+
+                </div>
+
+                <div className="row g-4">
+
+                  {topRated
+                    .slice(0, 8)
+                    .map((item) => (
+                      <MovieCard
+                        key={item.id}
+                        movie={prepareMovie(item)}
+                      />
+                    ))}
+
+                </div>
+
+              </section>
+            )}
+
           </>
         )}
-      </div>
+
+      </main>
+
     </div>
   );
 }

@@ -1,30 +1,382 @@
-.movie-search{
-    width:260px;
-    background:#222;
-    color:white;
-    border:1px solid #444;
+
+/* =========================================================
+   MOVIEHUB — GLOBAL STYLES
+   ========================================================= */
+
+:root {
+  --mh-bg: #070b14;
+  --mh-bg-soft: #0d1320;
+  --mh-surface: #111827;
+  --mh-surface-light: #172033;
+
+  --mh-text: #f8fafc;
+  --mh-text-muted: #94a3b8;
+
+  --mh-primary: #ffc107;
+  --mh-primary-dark: #d99f00;
+
+  --mh-danger: #ef4444;
+  --mh-border: rgba(148, 163, 184, 0.16);
+
+  --mh-radius-sm: 10px;
+  --mh-radius-md: 16px;
+  --mh-radius-lg: 22px;
+
+  --mh-transition: 0.25s ease;
 }
 
+/* =========================================================
+   RESET
+   ========================================================= */
 
-.movie-search::placeholder{
-    color:#aaa;
+* {
+  box-sizing: border-box;
 }
 
-
-.movie-search:focus{
-    background:#222;
-    color:white;
-    border-color:#ffc107;
-    box-shadow:none;
+html {
+  scroll-behavior: smooth;
 }
 
+body {
+  margin: 0;
+  min-width: 320px;
 
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(255, 193, 7, 0.045),
+      transparent 28%
+    ),
+    var(--mh-bg);
 
-@media(max-width:768px){
+  color: var(--mh-text);
 
-    .movie-search{
-        width:100%;
-        margin-top:15px;
-    }
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
 
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
+
+/* =========================================================
+   ROOT
+   ========================================================= */
+
+#root {
+  min-height: 100vh;
+}
+
+/* =========================================================
+   GLOBAL LINKS
+   ========================================================= */
+
+a {
+  color: inherit;
+}
+
+a:hover {
+  color: inherit;
+}
+
+/* =========================================================
+   SELECTION
+   ========================================================= */
+
+::selection {
+  background: rgba(255, 193, 7, 0.25);
+  color: #ffffff;
+}
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+::-webkit-scrollbar {
+  width: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: #070b14;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* =========================================================
+   SEARCH INPUT
+   ========================================================= */
+
+.movie-search {
+  width: 260px;
+
+  background: rgba(17, 24, 39, 0.92);
+  color: var(--mh-text);
+
+  border: 1px solid var(--mh-border);
+  border-radius: 999px;
+
+  padding: 10px 16px;
+
+  transition:
+    border-color var(--mh-transition),
+    box-shadow var(--mh-transition),
+    background var(--mh-transition);
+}
+
+.movie-search::placeholder {
+  color: #64748b;
+}
+
+.movie-search:hover {
+  border-color: rgba(255, 193, 7, 0.35);
+}
+
+.movie-search:focus {
+  background: rgba(17, 24, 39, 1);
+  color: var(--mh-text);
+
+  border-color: var(--mh-primary);
+
+  box-shadow:
+    0 0 0 3px rgba(255, 193, 7, 0.1);
+
+  outline: none;
+}
+
+/* =========================================================
+   FORM CONTROLS
+   ========================================================= */
+
+.form-control,
+.form-select {
+  transition:
+    border-color var(--mh-transition),
+    box-shadow var(--mh-transition);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--mh-primary);
+  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.btn {
+  transition:
+    transform var(--mh-transition),
+    box-shadow var(--mh-transition),
+    background-color var(--mh-transition),
+    border-color var(--mh-transition);
+}
+
+.btn:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.btn-warning {
+  box-shadow: 0 8px 24px rgba(255, 193, 7, 0.12);
+}
+
+.btn-warning:hover {
+  box-shadow: 0 10px 28px rgba(255, 193, 7, 0.2);
+}
+
+/* =========================================================
+   TEXT UTILITIES
+   ========================================================= */
+
+.text-muted {
+  color: var(--mh-text-muted) !important;
+}
+
+.text-secondary {
+  color: #94a3b8 !important;
+}
+
+/* =========================================================
+   LINE CLAMP
+   ========================================================= */
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+ 
+
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+
+
+  overflow: hidden;
+}
+
+/* =========================================================
+   MOVIE CARD
+   ========================================================= */
+
+.movie-card {
+  transition:
+    transform var(--mh-transition),
+    box-shadow var(--mh-transition),
+    border-color var(--mh-transition);
+}
+
+.movie-card:hover {
+  transform: translateY(-6px);
+
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.35);
+}
+
+.movie-card img {
+  transition: transform 0.45s ease;
+}
+
+.movie-card:hover img {
+  transform: scale(1.05);
+}
+
+/* =========================================================
+   GLASS EFFECT
+   ========================================================= */
+
+.glass {
+  background: rgba(15, 23, 42, 0.72);
+
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  border: 1px solid var(--mh-border);
+}
+
+/* =========================================================
+   SECTION HEADINGS
+   ========================================================= */
+
+.movie-section-title {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.movie-section-title::before {
+  content: "";
+
+  width: 4px;
+  height: 28px;
+
+  border-radius: 999px;
+
+  background: var(--mh-primary);
+}
+
+/* =========================================================
+   SKELETON
+   ========================================================= */
+
+.movie-skeleton {
+  overflow: hidden;
+
+  background: var(--mh-surface);
+
+  border: 1px solid var(--mh-border);
+
+  border-radius: var(--mh-radius-lg);
+}
+
+/* =========================================================
+   DROPDOWN
+   ========================================================= */
+
+.movie-search-dropdown {
+  background: rgba(15, 23, 42, 0.97);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border: 1px solid var(--mh-border);
+
+  border-radius: var(--mh-radius-md);
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.4);
+}
+
+.movie-search-dropdown-item {
+  transition:
+    background-color var(--mh-transition),
+    padding-left var(--mh-transition);
+}
+
+.movie-search-dropdown-item:hover {
+  background: rgba(255, 193, 7, 0.08);
+  padding-left: 18px;
+}
+
+/* =========================================================
+   IMAGE
+   ========================================================= */
+
+.object-fit-cover {
+  object-fit: cover;
+}
+
+/* =========================================================
+   FOCUS ACCESSIBILITY
+   ========================================================= */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--mh-primary);
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .movie-search {
+    width: 100%;
+    margin-top: 15px;
+  }
+
+  .movie-section-title {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  body {
+    font-size: 0.95rem;
+  }
+
+  .movie-section-title::before {
+    height: 23px;
+  }
+}
+

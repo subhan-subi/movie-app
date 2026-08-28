@@ -1,0 +1,258 @@
+/* =========================================
+   HOME PAGE
+========================================= */
+
+.home-page {
+  background:
+    radial-gradient(
+      circle at top,
+      rgba(245, 158, 11, 0.06),
+      transparent 35%
+    ),
+    #0b1120;
+}
+
+
+/* =========================================
+   CONTENT TYPE SWITCH
+========================================= */
+
+.home-type-switch {
+  position: relative;
+  z-index: 5;
+}
+
+.content-switcher {
+  display: inline-flex;
+  padding: 5px;
+  gap: 4px;
+  border-radius: 999px;
+  background: rgba(30, 41, 59, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+}
+
+.content-switch-btn {
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #cbd5e1;
+  padding: 11px 24px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+
+.content-switch-btn:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.content-switch-btn.active {
+  color: #111827;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.movie-active {
+  background: #ffc107;
+}
+
+.tv-active {
+  background: #ef4444;
+  color: white !important;
+}
+
+.switch-icon {
+  font-size: 16px;
+}
+
+
+/* =========================================
+   HERO
+========================================= */
+
+.home-hero-section {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+
+/* =========================================
+   SECTION HEADINGS
+========================================= */
+
+.section-heading-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.section-kicker {
+  display: block;
+  color: #fbbf24;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin-bottom: 5px;
+}
+
+.section-title {
+  margin: 0;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.section-icon {
+  font-size: 28px;
+}
+
+.result-count {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+
+/* =========================================
+   GENRES
+========================================= */
+
+.genres-section {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.genre-list {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin-top: 22px;
+}
+
+.genre-btn {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(30, 41, 59, 0.55);
+  color: #cbd5e1;
+  padding: 8px 17px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.genre-btn:hover {
+  border-color: #fbbf24;
+  color: #fbbf24;
+  transform: translateY(-2px);
+}
+
+.genre-btn.active {
+  background: #ffc107;
+  border-color: #ffc107;
+  color: #111827;
+  box-shadow: 0 6px 18px rgba(255, 193, 7, 0.2);
+}
+
+
+/* =========================================
+   MOVIE SECTIONS
+========================================= */
+
+.movie-section {
+  position: relative;
+}
+
+.movie-section + .movie-section {
+  border-top: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+
+/* =========================================
+   EMPTY STATE
+========================================= */
+
+.empty-results {
+  text-align: center;
+  padding: 70px 20px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 24px;
+  background: rgba(30, 41, 59, 0.25);
+}
+
+.empty-icon {
+  font-size: 55px;
+  margin-bottom: 15px;
+}
+
+.empty-results h4 {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.empty-results p {
+  color: #64748b;
+  margin: 0;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 768px) {
+
+  .home-type-switch {
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
+
+  .content-switch-btn {
+    padding: 9px 18px;
+    font-size: 13px;
+  }
+
+  .section-heading-row {
+    align-items: center;
+  }
+
+  .genre-list {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: none;
+  }
+
+  .genre-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .genre-btn {
+    flex-shrink: 0;
+  }
+
+}
+
+
+@media (max-width: 480px) {
+
+  .content-switcher {
+    width: 100%;
+  }
+
+  .content-switch-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 9px 12px;
+  }
+
+  .section-title {
+    font-size: 1.35rem;
+  }
+
+}

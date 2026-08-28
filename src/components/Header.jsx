@@ -1,92 +1,414 @@
-import { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { searchMulti } from "../Service/api";
+import "./Header.css";
 
 export function Header() {
   const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const navigate = useNavigate();
+  const searchRef = useRef(null);
 
-  function handleSearch(e) {
-    e.preventDefault();
-    if (query.trim()) {
-      navigate(`/search/${query.trim()}`);
-      setQuery("");
-      setIsMenuOpen(false);
+  // ==========================================
+  // LIVE SEARCH
+  // ==========================================
+
+  useEffect(() => {
+    if (!query.trim()) {
+      setSuggestions([]);
+      setShowDropdown(false);
+      return;
     }
-  }
 
-  const closeMenu = () => setIsMenuOpen(false);
+    const timer = setTimeout(async () => {
+      try {
+        setIsSearching(true);
+
+        const results = await searchMulti(query.trim());
+
+        setSuggestions(results ? results.slice(0, 6) : []);
+        setShowDropdown(true);
+      } catch (error) {
+        console.error("Search error:", error);
+        setSuggestions([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  // ==========================================
+  // CLOSE SEARCH DROPDOWN
+  // ==========================================
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, []);
+
+  // ==========================================
+  // CLOSE MOBILE MENU
+  // ==========================================
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+    setShowDropdown(false);
+  };
+
+  // ==========================================
+  // SEARCH SUBMIT
+  // ==========================================
+
+  const handleSearch = (event) => {
+    event.preventDefault();
+
+    const cleanQuery = query.trim();
+
+    if (!cleanQuery) return;
+
+    navigate(`/search/${encodeURIComponent(cleanQuery)}`);
+
+    setQuery("");
+    closeMenu();
+  };
+
+  // ==========================================
+  // SEARCH RESULT CLICK
+  // ==========================================
+
+  const handleSuggestionClick = (item) => {
+    const isTV =
+      item.media_type === "tv" ||
+      Boolean(item.first_air_date);
+
+    const route = isTV
+      ? `/tv/${item.id}`
+      : `/movie/${item.id}`;
+
+    navigate(route);
+
+    setQuery("");
+    closeMenu();
+  };
+
+  // ==========================================
+  // NAV LINK CLASS
+  // ==========================================
+
+  const navLinkClass = ({ isActive }) =>
+    `header-nav-link ${isActive ? "active" : ""}`;
 
   return (
-    <header className="sticky-top border-bottom border-secondary border-opacity-25" style={{ backdropFilter: "blur(12px)", backgroundColor: "rgba(15, 23, 42, 0.9)" }}>
-      <nav className="navbar navbar-expand-lg navbar-dark py-3">
+    <header className="movie-header">
+
+      <nav className="navbar navbar-expand-lg">
+
         <div className="container">
-          {/* Logo */}
+
+          {/* ======================================
+              BRAND
+          ====================================== */}
+
           <Link
-            className="navbar-brand fw-bold fs-3 d-flex align-items-center gap-2 text-warning"
             to="/"
+            className="movie-logo"
             onClick={closeMenu}
           >
-            <span>🎬</span> <span>Movie<span className="text-white">Hub</span></span>
+            <span className="logo-icon">🎬</span>
+
+            <span className="logo-text">
+              Movie<span>Hub</span>
+            </span>
           </Link>
 
-          {/* Mobile Button */}
+          {/* ======================================
+              MOBILE TOGGLE
+          ====================================== */}
+
           <button
-            className="navbar-toggler border-0 shadow-none"
             type="button"
+            className={`header-menu-toggle ${
+              isMenuOpen ? "open" : ""
+            }`}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle navigation"
+            aria-expanded={isMenuOpen}
           >
-            <span className="navbar-toggler-icon"></span>
+            <span></span>
+            <span></span>
+            <span></span>
           </button>
 
-          {/* Menu */}
-          <div className={`collapse navbar-collapse ${isMenuOpen ? "show" : ""}`}>
-            <ul className="navbar-nav mx-auto mb-3 mb-lg-0 fw-semibold">
-              <li className="nav-item">
-                <NavLink
-                  to="/"
-                  onClick={closeMenu}
-                  className={({ isActive }) =>
-                    `nav-link px-3 ${isActive ? "text-warning fw-bold border-bottom border-warning border-2" : "text-light"}`
-                  }
-                >
-                  Home
-                </NavLink>
-              </li>
-              <li className="nav-item">
-                <NavLink
-                  to="/wishlist"
-                  onClick={closeMenu}
-                  className={({ isActive }) =>
-                    `nav-link px-3 ${isActive ? "text-warning fw-bold border-bottom border-warning border-2" : "text-light"}`
-                  }
-                >
-                  ❤️ Wishlist
-                </NavLink>
-              </li>
-            </ul>
+          {/* ======================================
+              NAVIGATION
+          ====================================== */}
 
-            {/* Search Input */}
-            <form className="d-flex position-relative" onSubmit={handleSearch}>
-              <input
-                className="form-control bg-dark text-white border-secondary rounded-pill px-4 pe-5"
-                type="search"
-                placeholder="Search movies..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                style={{ minWidth: "240px" }}
-              />
-              <button
-                className="btn btn-warning rounded-circle position-absolute end-0 top-0 m-1 p-0 d-flex align-items-center justify-content-center"
-                style={{ width: "30px", height: "30px" }}
-                type="submit"
+          <div
+            className={`header-navigation ${
+              isMenuOpen ? "show" : ""
+            }`}
+          >
+
+            {/* MAIN LINKS */}
+
+            <div className="header-links">
+
+              <NavLink
+                to="/"
+                end
+                className={navLinkClass}
+                onClick={closeMenu}
               >
-                🔍
-              </button>
-            </form>
+                <span>⌂</span>
+                Home
+              </NavLink>
+
+              <NavLink
+                to="/movies"
+                className={navLinkClass}
+                onClick={closeMenu}
+              >
+                <span>🎬</span>
+                Movies
+              </NavLink>
+
+              <NavLink
+                to="/tv"
+                className={navLinkClass}
+                onClick={closeMenu}
+              >
+                <span>📺</span>
+                TV Shows
+              </NavLink>
+
+              <NavLink
+                to="/wishlist"
+                className={navLinkClass}
+                onClick={closeMenu}
+              >
+                <span>♡</span>
+                Wishlist
+              </NavLink>
+
+            </div>
+
+            {/* ==================================
+                SEARCH
+            ================================== */}
+
+            <div
+              className="header-search-wrapper"
+              ref={searchRef}
+            >
+
+              <form
+                className="header-search"
+                onSubmit={handleSearch}
+              >
+
+                <span className="search-icon">
+                  🔍
+                </span>
+
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(event) =>
+                    setQuery(event.target.value)
+                  }
+                  onFocus={() => {
+                    if (query.trim()) {
+                      setShowDropdown(true);
+                    }
+                  }}
+                  placeholder="Search movies & shows..."
+                  aria-label="Search movies and TV shows"
+                />
+
+                {query && (
+                  <button
+                    type="button"
+                    className="search-clear"
+                    onClick={() => {
+                      setQuery("");
+                      setShowDropdown(false);
+                    }}
+                    aria-label="Clear search"
+                  >
+                    ×
+                  </button>
+                )}
+
+                <button
+                  type="submit"
+                  className="search-submit"
+                  aria-label="Search"
+                >
+                  →
+                </button>
+
+              </form>
+
+              {/* ==================================
+                  SEARCH DROPDOWN
+              ================================== */}
+
+              {showDropdown && (
+                <div className="search-dropdown">
+
+                  {isSearching ? (
+                    <div className="search-status">
+                      <span className="search-spinner"></span>
+                      Searching...
+                    </div>
+                  ) : suggestions.length > 0 ? (
+                    <>
+
+                      <div className="search-dropdown-header">
+                        <span>Search Results</span>
+                        <small>{suggestions.length}</small>
+                      </div>
+
+                      <div className="search-results">
+
+                        {suggestions.map((item) => {
+
+                          const isTV =
+                            item.media_type === "tv" ||
+                            Boolean(item.first_air_date);
+
+                          const title =
+                            item.title ||
+                            item.name ||
+                            "Untitled";
+
+                          const year =
+                            (
+                              item.release_date ||
+                              item.first_air_date ||
+                              ""
+                            ).split("-")[0];
+
+                          const poster = item.poster_path
+                            ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
+                            : null;
+
+                          return (
+                            <button
+                              key={`${item.media_type}-${item.id}`}
+                              type="button"
+                              className="search-result-item"
+                              onClick={() =>
+                                handleSuggestionClick(item)
+                              }
+                            >
+
+                              <div className="search-result-poster">
+
+                                {poster ? (
+                                  <img
+                                    src={poster}
+                                    alt={title}
+                                    loading="lazy"
+                                  />
+                                ) : (
+                                  <span>🎬</span>
+                                )}
+
+                              </div>
+
+                              <div className="search-result-info">
+
+                                <strong>
+                                  {title}
+                                </strong>
+
+                                <div className="search-result-meta">
+
+                                  <span>
+                                    {isTV
+                                      ? "📺 TV Series"
+                                      : "🎬 Movie"}
+                                  </span>
+
+                                  <span>•</span>
+
+                                  <span>
+                                    ⭐{" "}
+                                    {item.vote_average
+                                      ? item.vote_average.toFixed(1)
+                                      : "N/A"}
+                                  </span>
+
+                                  {year && (
+                                    <>
+                                      <span>•</span>
+                                      <span>{year}</span>
+                                    </>
+                                  )}
+
+                                </div>
+
+                              </div>
+
+                              <span className="result-arrow">
+                                →
+                              </span>
+
+                            </button>
+                          );
+                        })}
+
+                      </div>
+
+                      <button
+                        type="button"
+                        className="view-all-search"
+                        onClick={handleSearch}
+                      >
+                        View all results →
+                      </button>
+
+                    </>
+                  ) : (
+                    <div className="search-empty">
+                      <div>🔎</div>
+                      <strong>No results found</strong>
+                      <span>
+                        Try searching for another movie or show.
+                      </span>
+                    </div>
+                  )}
+
+                </div>
+              )}
+
+            </div>
+
           </div>
+
         </div>
+
       </nav>
+
     </header>
   );
 }

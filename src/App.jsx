@@ -1,48 +1,90 @@
-import { Link, Route, Routes } from 'react-router-dom'
-import './App.css'
-import { Header } from './components/Header'
-import { MainLayout } from './components/Layout'
-import { Home } from './pages/home'
-import { SearchResults } from './pages/SearchResults'
-import { Movie } from './pages/Movie'
-import { Wishlist } from './pages/Wishlist'
-import {WishlistProvider} from './context/WishlistContext'
-import { TVShowDetails } from './pages/TVShowDetails'
+import { Routes, Route } from "react-router-dom";
+
+import "./App.css";
+
+import { MainLayout } from "./components/Layout";
+
+import { Home } from "./pages/home";
+import { Movies } from "../src/pages/Movies";
+import { TVShows } from "./pages/TVShows";
+import { SearchResults } from "./pages/SearchResults";
+import { Movie } from "./pages/Movie";
+import { TVShowDetails } from "./pages/TVShowDetails";
+import { Wishlist } from "./pages/Wishlist";
+
 function App() {
-   
-     return(
-      <WishlistProvider>
-        <Routes>
+  return (
+    <Routes>
 
       <Route element={<MainLayout />}>
 
-        <Route 
-          path="/" 
-          element={<Home />} 
+        {/* ===============================
+            HOME
+        =============================== */}
+
+        <Route
+          path="/"
+          element={<Home />}
         />
-        <Route 
-          path="/movie/:id" 
-          element={<Movie />} 
+
+        {/* ===============================
+            MOVIES
+        =============================== */}
+
+        <Route
+          path="/movies"
+          element={<Movies />}
         />
-        <Route 
-           path="/search/:query"  
-          element={<SearchResults />} 
+
+        {/* ===============================
+            TV SHOWS
+        =============================== */}
+
+        <Route
+          path="/tv"
+          element={<TVShows />}
         />
-        <Route path="/wishlist" element={<Wishlist />} />
+
+        {/* ===============================
+            SEARCH
+        =============================== */}
+
+        <Route
+          path="/search/:query"
+          element={<SearchResults />}
+        />
+
+        {/* ===============================
+            MOVIE DETAILS
+        =============================== */}
+
+        <Route
+          path="/movie/:id"
+          element={<Movie />}
+        />
+
+        {/* ===============================
+            TV SHOW DETAILS
+        =============================== */}
+
+        <Route
+          path="/tv/:id"
+          element={<TVShowDetails />}
+        />
+
+        {/* ===============================
+            WISHLIST
+        =============================== */}
+
+        <Route
+          path="/wishlist"
+          element={<Wishlist />}
+        />
+
       </Route>
-     
-
-  <Route path="/tv/:id" element={<TVShowDetails />} /> {/* <-- Add TV Show Route */}
-
-
 
     </Routes>
-
-    </WishlistProvider>
-
-  
-     );
-   
+  );
 }
 
-export default App
+export default App;

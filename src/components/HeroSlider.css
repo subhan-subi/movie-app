@@ -1,0 +1,764 @@
+
+/* =========================================================
+   HERO SLIDER
+========================================================= */
+
+.hero-slider-section {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #020617;
+}
+
+/* =========================================================
+   CAROUSEL
+========================================================= */
+
+.hero-slider-section .carousel {
+  width: 100%;
+}
+
+.hero-slider-section .carousel-inner {
+  width: 100%;
+}
+
+/* =========================================================
+   SLIDE
+========================================================= */
+
+.hero-slider-section .carousel-item {
+  position: relative;
+  height: min(720px, calc(100vh - 70px));
+  min-height: 560px;
+  overflow: hidden;
+  background: #020617;
+}
+
+/* =========================================================
+   BACKGROUND IMAGE
+========================================================= */
+
+.hero-slide-background {
+  position: absolute;
+  inset: 0;
+
+  background-size: cover;
+  background-position: center;
+
+  transform: scale(1.03);
+
+  transition:
+    transform 7s ease,
+    opacity 0.8s ease;
+}
+
+.carousel-item.active .hero-slide-background {
+  transform: scale(1.08);
+}
+
+/* =========================================================
+   CINEMATIC OVERLAY
+========================================================= */
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(2, 6, 23, 0.98) 0%,
+      rgba(2, 6, 23, 0.88) 25%,
+      rgba(2, 6, 23, 0.55) 55%,
+      rgba(2, 6, 23, 0.2) 100%
+    );
+}
+
+.hero-overlay-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  height: 220px;
+
+  background:
+    linear-gradient(
+      to top,
+      #0f172a 0%,
+      rgba(15, 23, 42, 0.85) 18%,
+      rgba(15, 23, 42, 0) 100%
+    );
+}
+
+/* =========================================================
+   CONTAINER
+========================================================= */
+
+.hero-container {
+  position: relative;
+  z-index: 5;
+  height: 100%;
+}
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.hero-content {
+  max-width: 700px;
+  padding-top: 30px;
+  padding-bottom: 80px;
+}
+
+/* =========================================================
+   LABEL
+========================================================= */
+
+.hero-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+
+  margin-bottom: 18px;
+  padding: 8px 13px;
+
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  border-radius: 999px;
+
+  background: rgba(15, 23, 42, 0.55);
+
+  color: #f8fafc;
+
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.hero-label-dot {
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: #ffc107;
+
+  box-shadow:
+    0 0 0 4px rgba(255, 193, 7, 0.1),
+    0 0 15px rgba(255, 193, 7, 0.8);
+}
+
+.hero-rank {
+  padding-left: 7px;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+
+  color: #ffc107;
+}
+
+/* =========================================================
+   TITLE
+========================================================= */
+
+.hero-title {
+  max-width: 850px;
+
+  margin: 0 0 15px;
+
+  color: #ffffff;
+
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  font-weight: 900;
+
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+
+  text-shadow:
+    0 8px 35px rgba(0, 0, 0, 0.45);
+}
+
+/* =========================================================
+   META
+========================================================= */
+
+.hero-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  margin-bottom: 18px;
+
+  color: #cbd5e1;
+
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.hero-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  color: #ffc107;
+}
+
+.hero-rating span {
+  font-size: 1rem;
+}
+
+.hero-meta-divider {
+  color: #64748b;
+}
+
+/* =========================================================
+   OVERVIEW
+========================================================= */
+
+.hero-overview {
+  max-width: 650px;
+
+  margin-bottom: 28px;
+
+  color: #cbd5e1;
+
+  font-size: 1rem;
+  line-height: 1.75;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Watch button */
+
+.hero-watch-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-height: 48px;
+
+  padding: 0 23px;
+
+  border: 1px solid #ffc107;
+  border-radius: 999px;
+
+  background: #ffc107;
+  color: #111827;
+
+  font-size: 0.9rem;
+  font-weight: 800;
+
+  text-decoration: none;
+
+  box-shadow:
+    0 10px 30px rgba(255, 193, 7, 0.2);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.hero-watch-btn:hover {
+  color: #111827;
+
+  background: #ffca2c;
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 14px 35px rgba(255, 193, 7, 0.3);
+}
+
+.hero-play-icon {
+  font-size: 0.75rem;
+}
+
+/* Wishlist */
+
+.hero-wishlist-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 48px;
+
+  padding: 0 20px;
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+
+  background: rgba(15, 23, 42, 0.45);
+
+  color: #ffffff;
+
+  font-size: 0.9rem;
+  font-weight: 700;
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.hero-wishlist-btn:hover {
+  transform: translateY(-2px);
+
+  background: rgba(255, 255, 255, 0.1);
+
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.hero-wishlist-btn.is-wishlisted {
+  border-color: rgba(220, 53, 69, 0.7);
+
+  background: rgba(220, 53, 69, 0.15);
+
+  color: #ff7b88;
+}
+
+/* =========================================================
+   DISCOVER LINE
+========================================================= */
+
+.hero-discover {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-top: 25px;
+
+  color: #64748b;
+
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.hero-discover-line {
+  width: 35px;
+  height: 1px;
+
+  background: #475569;
+}
+
+/* =========================================================
+   POSTER
+========================================================= */
+
+.hero-poster-wrapper {
+  position: relative;
+
+  width: 285px;
+  max-width: 100%;
+
+  transform: rotate(2deg);
+
+  transition: transform 0.5s ease;
+}
+
+.carousel-item.active .hero-poster-wrapper {
+  transform: rotate(2deg) translateY(-5px);
+}
+
+.hero-poster-glow {
+  position: absolute;
+
+  inset: 8%;
+
+  background: #ffc107;
+
+  opacity: 0.12;
+
+  filter: blur(55px);
+
+  border-radius: 50%;
+}
+
+.hero-poster {
+  position: relative;
+  z-index: 2;
+
+  display: block;
+
+  width: 100%;
+  aspect-ratio: 2 / 3;
+
+  object-fit: cover;
+
+  border-radius: 18px;
+
+  border: 1px solid rgba(255, 255, 255, 0.18);
+
+  box-shadow:
+    0 35px 80px rgba(0, 0, 0, 0.65);
+
+  transition:
+    transform 0.5s ease,
+    box-shadow 0.5s ease;
+}
+
+.hero-poster-wrapper:hover {
+  transform: rotate(0deg) translateY(-8px);
+}
+
+.hero-poster-wrapper:hover .hero-poster {
+  box-shadow:
+    0 40px 90px rgba(0, 0, 0, 0.75);
+}
+
+/* =========================================================
+   POSTER RATING
+========================================================= */
+
+.hero-poster-rating {
+  position: absolute;
+
+  z-index: 4;
+
+  right: -13px;
+  bottom: 20px;
+
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  padding: 9px 13px;
+
+  border-radius: 999px;
+
+  background: rgba(15, 23, 42, 0.9);
+
+  border: 1px solid rgba(255, 193, 7, 0.3);
+
+  color: #ffffff;
+
+  font-size: 0.8rem;
+  font-weight: 800;
+
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.4);
+
+  backdrop-filter: blur(10px);
+}
+
+.hero-poster-rating span {
+  color: #ffc107;
+}
+
+/* =========================================================
+   CONTROLS
+========================================================= */
+
+.hero-control {
+  z-index: 10;
+
+  width: 55px;
+
+  opacity: 1;
+}
+
+.hero-control-prev {
+  left: 18px;
+}
+
+.hero-control-next {
+  right: 18px;
+}
+
+.hero-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 42px;
+  height: 42px;
+
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  border-radius: 50%;
+
+  background: rgba(15, 23, 42, 0.5);
+
+  color: #ffffff;
+
+  font-size: 2rem;
+  line-height: 1;
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.hero-control:hover .hero-arrow {
+  background: rgba(255, 193, 7, 0.9);
+
+  border-color: #ffc107;
+
+  color: #111827;
+
+  transform: scale(1.08);
+}
+
+/* =========================================================
+   INDICATORS
+========================================================= */
+
+.hero-indicators {
+  position: absolute;
+
+  z-index: 20;
+
+  right: auto;
+  bottom: 35px;
+  left: 50%;
+
+  width: auto;
+
+  margin: 0;
+
+  transform: translateX(-50%);
+
+  gap: 7px;
+}
+
+.hero-indicators button {
+  width: 28px;
+  height: 4px;
+
+  margin: 0;
+
+  padding: 0;
+
+  border: 0;
+
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.35);
+
+  opacity: 1;
+
+  transition:
+    width 0.3s ease,
+    background 0.3s ease;
+}
+
+.hero-indicators button.active {
+  width: 55px;
+
+  background: #ffc107;
+}
+
+.hero-indicators button span {
+  display: none;
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 991px) {
+  .hero-slider-section .carousel-item {
+    height: 620px;
+    min-height: 620px;
+  }
+
+  .hero-content {
+    max-width: 650px;
+
+    padding-left: 30px;
+    padding-right: 30px;
+  }
+
+  .hero-title {
+    font-size: clamp(2.4rem, 7vw, 4rem);
+  }
+
+  .hero-overview {
+    max-width: 600px;
+  }
+
+  .hero-control-prev {
+    left: 8px;
+  }
+
+  .hero-control-next {
+    right: 8px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 767px) {
+  .hero-slider-section .carousel-item {
+    height: 610px;
+    min-height: 610px;
+  }
+
+  .hero-overlay {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(2, 6, 23, 0.65) 0%,
+        rgba(2, 6, 23, 0.75) 45%,
+        rgba(2, 6, 23, 0.98) 100%
+      );
+  }
+
+  .hero-overlay-bottom {
+    height: 180px;
+  }
+
+  .hero-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+
+    height: 100%;
+
+    padding: 40px 20px 75px;
+  }
+
+  .hero-label {
+    align-self: flex-start;
+
+    margin-bottom: 14px;
+
+    font-size: 0.7rem;
+  }
+
+  .hero-title {
+    max-width: 100%;
+
+    margin-bottom: 12px;
+
+    font-size: clamp(2rem, 10vw, 3rem);
+
+    line-height: 1;
+  }
+
+  .hero-meta {
+    margin-bottom: 13px;
+
+    font-size: 0.8rem;
+  }
+
+  .hero-overview {
+    margin-bottom: 20px;
+
+    font-size: 0.86rem;
+    line-height: 1.6;
+
+    -webkit-line-clamp: 3;
+  }
+
+  .hero-actions {
+    gap: 9px;
+  }
+
+  .hero-watch-btn,
+  .hero-wishlist-btn {
+    min-height: 44px;
+
+    padding: 0 16px;
+
+    font-size: 0.78rem;
+  }
+
+  .hero-discover {
+    display: none;
+  }
+
+  .hero-control {
+    width: 42px;
+  }
+
+  .hero-arrow {
+    width: 34px;
+    height: 34px;
+
+    font-size: 1.6rem;
+  }
+
+  .hero-indicators {
+    bottom: 22px;
+  }
+
+  .hero-indicators button {
+    width: 20px;
+  }
+
+  .hero-indicators button.active {
+    width: 40px;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 420px) {
+  .hero-slider-section .carousel-item {
+    height: 590px;
+    min-height: 590px;
+  }
+
+  .hero-content {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-bottom: 65px;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-overview {
+    font-size: 0.8rem;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-watch-btn,
+  .hero-wishlist-btn {
+    width: 100%;
+  }
+
+  .hero-control-prev {
+    left: 3px;
+  }
+
+  .hero-control-next {
+    right: 3px;
+  }
+}
+

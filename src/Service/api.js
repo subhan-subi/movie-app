@@ -216,5 +216,25 @@ export function getTVStreamUrl(id, season = 1, episode = 1, server = "vidsrc_xyz
   }
 }
 
+
+// Multi Search for Movies and TV Shows combined
+export async function searchMulti(query) {
+  if (!query) return [];
+  try {
+    const res = await fetch(
+      `${BASE_URL}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=en-US`
+    );
+    const data = await res.json();
+    // Exclude actors/people profiles, only keep movies and tv shows
+    return (data.results || []).filter(
+      (item) => item.media_type === "movie" || item.media_type === "tv"
+    );
+  } catch (error) {
+    console.error("Error in multi search:", error);
+    return [];
+  }
+}
 // Backward compatibility (Agar aapke purane components mein fetchMovies use ho raha ho)
 export const fetchMovies = getPopularMovies;
+
+
