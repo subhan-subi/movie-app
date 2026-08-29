@@ -1,294 +1,676 @@
-import React, { useEffect, useState, useContext, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
-  getMovieDetails,
-  getSimilarMovies,
-  getMovieCredits,
-  getMovieVideos,
-  getMovieStreamUrl,
+getMovieCredits,
+getMovieDetails,
+getMovieStreamUrl,
+getMovieVideos,
+getSimilarMovies,
 } from "../Service/api";
 import { MovieCard } from "../components/MovieCard";
 import { WishlistContext } from "../context/WishlistContext";
+import "./Movie.css";
 
 export function Movie() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const playerRef = useRef(null);
+const { id } = useParams();
+const navigate = useNavigate();
+const playerRef = useRef(null);
 
-  const { wishlist = [], addToWishlist, removetowishlist } = useContext(WishlistContext);
-  const [selectedServer, setSelectedServer] = useState("vidsrc_xyz");
-  const [movie, setMovie] = useState(null);
-  const [similarMovies, setSimilarMovies] = useState([]);
-  const [cast, setCast] = useState([]);
-  const [trailer, setTrailer] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [language, setLanguage] = useState("en-US");
+const {
+wishlist = [],
+addToWishlist,
+removetowishlist,
+} = useContext(WishlistContext);
 
-  const isWishlisted = wishlist.some((item) => item.id === movie?.id);
+const [selectedServer, setSelectedServer] = useState("vidsrc_xyz");
+const [movie, setMovie] = useState(null);
+const [similarMovies, setSimilarMovies] = useState([]);
+const [cast, setCast] = useState([]);
+const [trailer, setTrailer] = useState(null);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState(null);
+const [isPlaying, setIsPlaying] = useState(false);
+const [language, setLanguage] = useState("en-US");
 
-  const handleWishlistToggle = () => {
-    if (!movie) return;
-    if (isWishlisted) removetowishlist(movie);
-    else addToWishlist(movie);
-  };
+const isWishlisted = wishlist.some(
+(item) => item.id === movie?.id
+);
 
-  const handleWatchClick = () => {
-    setIsPlaying(true);
-    setTimeout(() => {
-      playerRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-  };
+const handleWishlistToggle = () => {
+if (!movie) return;
 
-  useEffect(() => {
-    let isMounted = true;
-    setIsPlaying(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
 
-    async function fetchAllData() {
-      try {
-        setLoading(true);
-        setError(null);
+if (isWishlisted) {
+  removetowishlist(movie);
+} else {
+  addToWishlist(movie);
+}
 
-        const [detailsData, similarData, creditsData, videoData] = await Promise.all([
-          getMovieDetails(id, language),
-          getSimilarMovies(id, language),
-          getMovieCredits(id, language),
-          getMovieVideos(id, language),
-        ]);
 
-        if (isMounted) {
-          if (detailsData) {
-            setMovie(detailsData);
-            setSimilarMovies(similarData || []);
-            setCast(creditsData?.cast || []);
+};
 
-            const trailerVideo = videoData?.results?.find(
-              (video) => video.type === "Trailer" && video.site === "YouTube"
-            );
-            setTrailer(trailerVideo || null);
-          } else {
-            setError("Movie details not found.");
-          }
-        }
-      } catch (err) {
-        if (isMounted) setError("Failed to fetch movie details. Please try again.");
-      } finally {
-        if (isMounted) setLoading(false);
-      }
+const handleWatchClick = () => {
+setIsPlaying(true);
+
+
+setTimeout(() => {
+  playerRef.current?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+}, 150);
+
+
+};
+
+useEffect(() => {
+let isMounted = true;
+
+
+setIsPlaying(false);
+window.scrollTo({
+  top: 0,
+  behavior: "smooth",
+});
+
+async function fetchAllData() {
+  try {
+    setLoading(true);
+    setError(null);
+
+    const [
+      detailsData,
+      similarData,
+      creditsData,
+      videoData,
+    ] = await Promise.all([
+      getMovieDetails(id, language),
+      getSimilarMovies(id, language),
+      getMovieCredits(id, language),
+      getMovieVideos(id, language),
+    ]);
+
+    if (!isMounted) return;
+
+    if (!detailsData) {
+      setError("Movie details not found.");
+      return;
     }
 
-    fetchAllData();
-    return () => { isMounted = false; };
-  }, [id, language]);
+    setMovie(detailsData);
+    setSimilarMovies(similarData || []);
+    setCast(creditsData?.cast || []);
 
-  if (loading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center min-vh-100 bg-dark text-white">
-        <div className="spinner-border text-warning" role="status" style={{ width: "3rem", height: "3rem" }}>
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
+    const trailerVideo = videoData?.results?.find(
+      (video) =>
+        video.type === "Trailer" &&
+        video.site === "YouTube"
     );
-  }
 
-  if (error || !movie) {
-    return (
-      <div className="container py-5 text-center text-white min-vh-100 d-flex flex-column justify-content-center align-items-center">
-        <div className="alert alert-danger px-4 py-3 shadow-lg" role="alert">
-          <h4 className="alert-heading fw-bold">Oops!</h4>
-          <p className="mb-0">{error || "Something went wrong."}</p>
-        </div>
-        <button className="btn btn-outline-warning fw-semibold px-4 mt-3" onClick={() => navigate(-1)}>
-          &larr; Go Back
-        </button>
+    setTrailer(trailerVideo || null);
+  } catch (err) {
+    if (isMounted) {
+      setError(
+        "Failed to fetch movie details. Please try again."
+      );
+    }
+  } finally {
+    if (isMounted) {
+      setLoading(false);
+    }
+  }
+}
+
+fetchAllData();
+
+return () => {
+  isMounted = false;
+};
+
+}, [id, language]);
+
+if (loading) {
+return ( <main className="movie-details-page movie-details-loading"> <div className="loading-content"> <div className="movie-loading-spinner"></div>
+
+
+      <h4>Loading Movie</h4>
+
+      <p>
+        Preparing your cinematic experience...
+      </p>
+    </div>
+  </main>
+);
+
+
+}
+
+if (error || !movie) {
+return ( <main className="movie-details-page movie-error-page"> <div className="movie-error-box"> <div className="movie-error-icon">🎬</div>
+
+
+      <h2>Oops! Movie Not Found</h2>
+
+      <p>
+        {error || "Something went wrong while loading this movie."}
+      </p>
+
+      <button
+        className="movie-back-btn"
+        onClick={() => navigate(-1)}
+      >
+        ← Go Back
+      </button>
+    </div>
+  </main>
+);
+
+}
+
+const posterUrl = movie.poster_path
+? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+: "https://via.placeholder.com/500x750?text=No+Poster+Available";
+
+const backdropUrl = movie.backdrop_path
+? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`
+: null;
+
+const releaseYear = movie.release_date
+? new Date(movie.release_date).getFullYear()
+: "N/A";
+
+const runtime = movie.runtime
+? `${Math.floor(movie.runtime / 60)}h ${movie.runtime % 60}m`
+: "N/A";
+
+return ( <main className="movie-details-page">
+
+
+  {backdropUrl && (
+    <div
+      className="movie-backdrop"
+      style={{
+        backgroundImage: `url(${backdropUrl})`,
+      }}
+    ></div>
+  )}
+
+  <div className="movie-backdrop-overlay"></div>
+
+  <div className="container position-relative movie-details-container">
+
+    {/* TOP BAR */}
+    <div className="movie-topbar">
+
+      <button
+        className="movie-back-btn"
+        onClick={() => navigate(-1)}
+      >
+        <span>←</span>
+        <span>Back</span>
+      </button>
+
+      <div className="movie-language-control">
+
+        <span className="language-label">
+          🌐 Language
+        </span>
+
+        <select
+          value={language}
+          onChange={(e) =>
+            setLanguage(e.target.value)
+          }
+          className="movie-language-select"
+        >
+          <option value="en-US">
+            🇺🇸 English
+          </option>
+
+          <option value="hi-IN">
+            🇮🇳 Hindi
+          </option>
+
+          <option value="es-ES">
+            🇪🇸 Spanish
+          </option>
+
+          <option value="fr-FR">
+            🇫🇷 French
+          </option>
+
+          <option value="de-DE">
+            🇩🇪 German
+          </option>
+
+          <option value="ja-JP">
+            🇯🇵 Japanese
+          </option>
+        </select>
+
       </div>
-    );
-  }
 
-  const posterUrl = movie.poster_path
-    ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-    : "https://via.placeholder.com/500x750?text=No+Poster+Available";
+    </div>
 
-  const backdropUrl = movie.backdrop_path
-    ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`
-    : null;
+    {/* HERO SECTION */}
+    <section className="movie-hero">
 
-  return (
-    <div className="bg-dark text-white min-vh-100 position-relative pb-5">
-      {backdropUrl && (
-        <div
-          className="position-absolute w-100 top-0 start-0 opacity-25"
-          style={{
-            height: "550px",
-            backgroundImage: `url(${backdropUrl})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            filter: "blur(10px)",
-            maskImage: "linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0))",
-            WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0))",
-          }}
-        />
-      )}
+      <div className="row g-5 align-items-center">
 
-      <div className="container py-4 position-relative" style={{ zIndex: 2 }}>
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <button className="btn btn-sm btn-outline-light rounded-pill px-3 shadow-sm" onClick={() => navigate(-1)}>
-            &larr; Back
-          </button>
+        {/* POSTER */}
+        <div className="col-12 col-lg-4">
 
-          <div className="d-flex align-items-center gap-2">
-            <span className="text-secondary small fw-bold d-none d-sm-inline">Language:</span>
-            <select
-              className="form-select form-select-sm bg-dark text-warning border-warning fw-semibold rounded-pill"
-              style={{ width: "auto", cursor: "pointer" }}
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-            >
-              <option value="en-US">🌐 English</option>
-              <option value="hi-IN">🇮🇳 Hindi (हिंदी)</option>
-              <option value="es-ES">🇪🇸 Spanish (Español)</option>
-              <option value="fr-FR">🇫🇷 French (Français)</option>
-              <option value="de-DE">🇩🇪 German (Deutsch)</option>
-              <option value="ja-JP">🇯🇵 Japanese (日本語)</option>
-            </select>
-          </div>
-        </div>
+          <div className="movie-poster-wrapper">
 
-        <div className="row g-4 align-items-center">
-          <div className="col-12 col-md-4 text-center text-md-start">
             <img
               src={posterUrl}
               alt={movie.title || "Movie Poster"}
-              className="img-fluid rounded-4 shadow-lg border border-secondary border-opacity-25 w-100"
-              style={{ maxHeight: "480px", objectFit: "cover", maxWidth: "340px" }}
+              className="movie-main-poster"
             />
-          </div>
 
-          <div className="col-12 col-md-8">
-            <h1 className="fw-bold display-5 mb-2">{movie.title}</h1>
-
-            {movie.tagline && (
-              <p className="text-warning fs-5 fst-italic mb-3">"{movie.tagline}"</p>
-            )}
-
-            <div className="d-flex flex-wrap align-items-center gap-3 mb-4">
-              <span className="badge bg-warning text-dark fs-6 px-3 py-2 fw-semibold rounded-pill">
-                ⭐ {movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"} / 10
-              </span>
-              {movie.release_date && <span className="text-light opacity-75">📅 {new Date(movie.release_date).getFullYear()}</span>}
-              {movie.runtime > 0 && <span className="text-light opacity-75">⏱️ {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m</span>}
-
-              <button onClick={handleWatchClick} className="btn btn-warning btn-sm px-4 py-2 fw-bold rounded-pill shadow">
-                ▶️ Watch Now
-              </button>
-              <button onClick={handleWishlistToggle} className={`btn btn-sm px-3 py-2 fw-semibold rounded-pill ${isWishlisted ? "btn-danger" : "btn-outline-light"}`}>
-                {isWishlisted ? "❤️ Wishlisted" : "🤍 Add to Wishlist"}
-              </button>
+            <div className="poster-rating">
+              ⭐{" "}
+              {movie.vote_average
+                ? movie.vote_average.toFixed(1)
+                : "N/A"}
             </div>
 
+          </div>
+
+        </div>
+
+        {/* MOVIE INFORMATION */}
+        <div className="col-12 col-lg-8">
+
+          <div className="movie-info">
+
+            <span className="movie-content-badge">
+              🎬 MOVIE
+            </span>
+
+            <h1 className="movie-main-title">
+              {movie.title}
+            </h1>
+
+            {movie.tagline && (
+              <p className="movie-tagline">
+                “{movie.tagline}”
+              </p>
+            )}
+
+            {/* META */}
+            <div className="movie-meta">
+
+              <span>
+                ⭐{" "}
+                {movie.vote_average
+                  ? movie.vote_average.toFixed(1)
+                  : "N/A"}
+                /10
+              </span>
+
+              <span className="meta-dot">
+                •
+              </span>
+
+              <span>
+                📅 {releaseYear}
+              </span>
+
+              <span className="meta-dot">
+                •
+              </span>
+
+              <span>
+                ⏱️ {runtime}
+              </span>
+
+            </div>
+
+            {/* GENRES */}
             {movie.genres?.length > 0 && (
-              <div className="d-flex flex-wrap gap-2 mb-4">
+              <div className="movie-genres">
+
                 {movie.genres.map((genre) => (
-                  <span key={genre.id} className="badge bg-secondary bg-opacity-50 text-light border border-secondary border-opacity-50 px-3 py-2 rounded-pill">
+                  <span
+                    key={genre.id}
+                    className="movie-genre-pill"
+                  >
                     {genre.name}
                   </span>
                 ))}
+
               </div>
             )}
 
-            <div className="mb-4">
-              <h5 className="fw-bold text-warning mb-2">Overview</h5>
-              <p className="lh-lg text-light opacity-90 fs-6">{movie.overview || "No description available."}</p>
+            {/* OVERVIEW */}
+            <div className="movie-overview">
+
+              <h3>
+                About This Movie
+              </h3>
+
+              <p>
+                {movie.overview ||
+                  "No description available for this movie."}
+              </p>
+
             </div>
+
+            {/* ACTIONS */}
+            <div className="movie-actions">
+
+              <button
+                className="movie-watch-btn"
+                onClick={handleWatchClick}
+              >
+                <span>▶</span>
+                Watch Now
+              </button>
+
+              <button
+                className={`movie-wishlist-btn ${
+                  isWishlisted
+                    ? "wishlisted"
+                    : ""
+                }`}
+                onClick={handleWishlistToggle}
+              >
+                <span>
+                  {isWishlisted ? "❤️" : "🤍"}
+                </span>
+
+                {isWishlisted
+                  ? "Wishlisted"
+                  : "Add to Wishlist"}
+              </button>
+
+              {trailer && (
+                <a
+                  href={`https://www.youtube.com/watch?v=${trailer.key}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="movie-trailer-btn"
+                >
+                  <span>▶</span>
+                  Trailer
+                </a>
+              )}
+
+            </div>
+
           </div>
+
         </div>
+
       </div>
 
-      {/* Video Streaming Player Section */}
-      <div ref={playerRef} className="container py-4">
-        {isPlaying ? (
-          <div>
-            <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-              <h4 className="fw-bold border-start border-warning border-4 ps-3 mb-0">🍿 Streaming Player</h4>
+    </section>
 
-              <div className="d-flex align-items-center gap-2 flex-wrap">
-                <span className="small text-secondary fw-semibold">Server:</span>
-                {[
-                  { id: "vidsrc_xyz", label: "Server 1 (VidSrc)" },
-                  { id: "vidlink", label: "Server 2 (VidLink)" },
-                  { id: "vidsrc_pro", label: "Server 3 (Pro)" },
-                  { id: "embed2", label: "Server 4 (2Embed)" },
-                ].map((srv) => (
-                  <button
-                    key={srv.id}
-                    className={`btn btn-sm rounded-pill ${selectedServer === srv.id ? "btn-warning fw-bold" : "btn-outline-light"}`}
-                    onClick={() => setSelectedServer(srv.id)}
-                  >
-                    {srv.label}
-                  </button>
-                ))}
-              </div>
+    {/* STREAMING PLAYER */}
+    <section
+      ref={playerRef}
+      className="movie-player-section"
+    >
+
+      <div className="movie-section-heading">
+
+        <div>
+          <span className="movie-section-kicker">
+            WATCH NOW
+          </span>
+
+          <h2>
+            Streaming Player
+          </h2>
+        </div>
+
+        <span className="movie-section-icon">
+          🍿
+        </span>
+
+      </div>
+
+      {isPlaying ? (
+        <div className="movie-player-wrapper">
+
+          {/* PLAYER HEADER */}
+          <div className="movie-player-header">
+
+            <div>
+              <h4>
+                ▶ Now Playing
+              </h4>
+
+              <p>
+                {movie.title}
+              </p>
             </div>
 
-            <div className="ratio ratio-16x9 rounded-4 overflow-hidden shadow-lg bg-black border border-secondary border-opacity-25">
-              <iframe
-                src={getMovieStreamUrl(id, selectedServer)}
-                title={movie.title || "Movie Stream Player"}
-                allow="autoplay; encrypted-media; picture-in-picture"
-                allowFullScreen
-                style={{ border: 0, width: "100%", height: "100%" }}
-              ></iframe>
-            </div>
-          </div>
-        ) : (
-          <div className="text-center p-4 bg-secondary bg-opacity-10 rounded-4 border border-secondary border-opacity-25">
-            <h5 className="text-light mb-3">Ready to stream this movie?</h5>
-            <button onClick={handleWatchClick} className="btn btn-warning px-4 py-2 fw-bold rounded-pill">
-              ▶️ Start Playing
+            <button
+              className="player-close-btn"
+              onClick={() =>
+                setIsPlaying(false)
+              }
+            >
+              ✕
             </button>
-          </div>
-        )}
-      </div>
 
-      {/* Cast Section */}
-      {cast.length > 0 && (
-        <div className="container py-4">
-          <h4 className="fw-bold mb-4 border-start border-warning border-4 ps-3">🎭 Top Cast</h4>
-          <div className="row g-3">
-            {cast.slice(0, 6).map((actor) => (
-              <div key={actor.id} className="col-lg-2 col-md-3 col-sm-4 col-6">
-                <div className="card bg-secondary bg-opacity-25 border-0 text-white h-100 rounded-4 overflow-hidden shadow-sm">
+          </div>
+
+          {/* SERVER BUTTONS */}
+          <div className="movie-server-bar">
+
+            <span className="server-label">
+              Servers
+            </span>
+
+            {[
+              {
+                id: "vidsrc_xyz",
+                label: "Server 1",
+              },
+              {
+                id: "vidlink",
+                label: "Server 2",
+              },
+              {
+                id: "vidsrc_pro",
+                label: "Server 3",
+              },
+              {
+                id: "embed2",
+                label: "Server 4",
+              },
+            ].map((server) => (
+              <button
+                key={server.id}
+                onClick={() =>
+                  setSelectedServer(server.id)
+                }
+                className={`movie-server-btn ${
+                  selectedServer === server.id
+                    ? "active"
+                    : ""
+                }`}
+              >
+                {server.label}
+              </button>
+            ))}
+
+          </div>
+
+          {/* IFRAME */}
+          <div className="movie-video-container">
+
+            <iframe
+              src={getMovieStreamUrl(
+                id,
+                selectedServer
+              )}
+              title={
+                movie.title ||
+                "Movie Streaming Player"
+              }
+              allow="autoplay; encrypted-media; picture-in-picture"
+              allowFullScreen
+              className="movie-video-frame"
+            ></iframe>
+
+          </div>
+
+          <div className="movie-player-note">
+            <span>ℹ️</span>
+
+            <p>
+              If the current server is not working,
+              try another server above.
+            </p>
+          </div>
+
+        </div>
+      ) : (
+        <div className="movie-player-placeholder">
+
+          <div className="player-placeholder-icon">
+            ▶
+          </div>
+
+          <h3>
+            Ready to Watch?
+          </h3>
+
+          <p>
+            Start streaming {movie.title} now.
+          </p>
+
+          <button
+            className="movie-watch-btn"
+            onClick={handleWatchClick}
+          >
+            ▶ Start Watching
+          </button>
+
+        </div>
+      )}
+
+    </section>
+
+    {/* CAST */}
+    {cast.length > 0 && (
+      <section className="movie-cast-section">
+
+        <div className="movie-section-heading">
+
+          <div>
+            <span className="movie-section-kicker">
+              CAST & CREW
+            </span>
+
+            <h2>
+              Top Cast
+            </h2>
+          </div>
+
+          <span className="movie-section-icon">
+            🎭
+          </span>
+
+        </div>
+
+        <div className="row g-4">
+
+          {cast.slice(0, 8).map((actor) => (
+
+            <div
+              key={actor.id}
+              className="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-2"
+            >
+
+              <div className="movie-cast-card">
+
+                <div className="movie-cast-image-wrapper">
+
                   <img
-                    src={actor.profile_path ? `https://image.tmdb.org/t/p/w200${actor.profile_path}` : "https://via.placeholder.com/200x300?text=No+Photo"}
+                    src={
+                      actor.profile_path
+                        ? `https://image.tmdb.org/t/p/w300${actor.profile_path}`
+                        : "https://via.placeholder.com/300x450?text=No+Photo"
+                    }
                     alt={actor.name}
-                    className="card-img-top object-fit-cover"
-                    style={{ height: "200px" }}
+                    className="movie-cast-image"
                     loading="lazy"
                   />
-                  <div className="card-body p-2 text-center">
-                    <h6 className="fw-bold text-truncate mb-1">{actor.name}</h6>
-                    <p className="text-warning small text-truncate mb-0">{actor.character || "N/A"}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
-      {/* Similar Movies */}
-      {similarMovies.length > 0 && (
-        <div className="container py-4">
-          <h4 className="fw-bold mb-4 border-start border-warning border-4 ps-3">📽️ Similar Movies</h4>
-          <div className="row g-4">
-            {similarMovies.slice(0, 8).map((simMovie) => (
-              <MovieCard key={simMovie.id} movie={simMovie} />
-            ))}
-          </div>
+                </div>
+
+                <div className="movie-cast-content">
+
+                  <h5>
+                    {actor.name}
+                  </h5>
+
+                  <p>
+                    {actor.character || "N/A"}
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          ))}
+
         </div>
-      )}
-    </div>
-  );
+
+      </section>
+    )}
+
+    {/* SIMILAR MOVIES */}
+    {similarMovies.length > 0 && (
+      <section className="movie-similar-section">
+
+        <div className="movie-section-heading">
+
+          <div>
+            <span className="movie-section-kicker">
+              YOU MAY ALSO LIKE
+            </span>
+
+            <h2>
+              Similar Movies
+            </h2>
+          </div>
+
+          <span className="movie-section-icon">
+            🎞️
+          </span>
+
+        </div>
+
+        <div className="row g-4">
+
+          {similarMovies
+            .slice(0, 8)
+            .map((simMovie) => (
+              <MovieCard
+                key={simMovie.id}
+                movie={{
+                  ...simMovie,
+                  media_type: "movie",
+                }}
+              />
+            ))}
+
+        </div>
+
+      </section>
+    )}
+
+  </div>
+</main>
+
+
+);
 }
