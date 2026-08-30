@@ -51,7 +51,7 @@ linear-gradient(
 .movies-hero-content,
 .tv-hero-content,
 .tv-loading-heading {
-max-width: 800px;
+
 position: relative;
 z-index: 2;
 }
