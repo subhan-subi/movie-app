@@ -1,0 +1,59 @@
+/* Mobile Bottom Navigation Bar */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 62px;
+  background: rgba(12, 12, 18, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 1050;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.72rem;
+  font-weight: 500;
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.bottom-nav-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.bottom-nav-item:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.bottom-nav-item.active {
+  color: #e50914; /* Accent color matching CineVerse */
+  font-weight: 600;
+}
+
+.bottom-nav-item.active .bottom-nav-icon {
+  transform: translateY(-2px) scale(1.15);
+}
+
+/* Page bottom padding fix so content isn't covered by bottom nav on mobile */
+@media (max-width: 991.98px) {
+  body {
+    padding-bottom: 65px;
+  }
+}
