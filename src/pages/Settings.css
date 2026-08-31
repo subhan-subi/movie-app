@@ -1,0 +1,90 @@
+.settings-container {
+  max-width: 650px;
+  margin: 30px auto;
+  padding: 0 20px 80px 20px;
+  color: #ffffff;
+  font-family: sans-serif;
+}
+
+.settings-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #facc15;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #1f2937;
+  padding-bottom: 10px;
+}
+
+.settings-card {
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.settings-card h3 {
+  font-size: 16px;
+  color: #facc15;
+  margin-bottom: 15px;
+}
+
+.settings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #1f2937;
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+}
+
+.settings-label {
+  font-size: 14px;
+  color: #d1d5db;
+}
+
+.settings-val {
+  font-size: 14px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.status-badge {
+  color: #22c55e;
+  font-weight: bold;
+}
+
+.download-apk-btn {
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+  background-color: #facc15;
+  color: #000000;
+  font-weight: bold;
+  padding: 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  margin-top: 10px;
+  transition: background-color 0.2s;
+}
+
+.download-apk-btn:hover {
+  background-color: #eab308;
+}
+
+.action-btn {
+  background: #1f2937;
+  color: #fff;
+  border: 1px solid #374151;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.action-btn:hover {
+  background: #374151;
+}

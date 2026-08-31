@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 
 import "./App.css";
-
+import { useEffect } from "react";
 import { MainLayout } from "./components/Layout";
 
 import { Home } from "./pages/home";
@@ -11,8 +11,12 @@ import { SearchResults } from "./pages/SearchResults";
 import { Movie } from "./pages/Movie";
 import { TVShowDetails } from "./pages/TVShowDetails";
 import { Wishlist } from "./pages/Wishlist";
-
+import { loadPopunderAd } from "./utils/popunder";
+import { Settings } from "./pages/Setting";
 function App() {
+  useEffect(() => {
+    loadPopunderAd(); // Mobile app open hotay hi popunder setup ho jayega
+  }, []);
   return (
     <Routes>
 
@@ -80,6 +84,9 @@ function App() {
           path="/wishlist"
           element={<Wishlist />}
         />
+       
+       <Route path="/Settings" element={<Settings />}/>
+
 
       </Route>
 

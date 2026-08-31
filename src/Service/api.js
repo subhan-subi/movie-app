@@ -172,6 +172,24 @@ export async function getMovieVideos(id, language = "en-US") {
   }
 }
 
+// Universal Trailer Fetcher (Movie & TV Fallback)
+export async function getMediaTrailer(id, type = "movie") {
+  try {
+    const data = await fetchFromTMDB(
+      `/${type}/${id}/videos?api_key=${API_KEY}&language=en-US`
+    );
+    const trailer = (data.results || []).find(
+      (video) =>
+        video.site === "YouTube" &&
+        (video.type === "Trailer" || video.type === "Teaser")
+    );
+    return trailer ? trailer.key : null;
+  } catch (error) {
+    console.error(`Error fetching ${type} trailer:`, error);
+    return null;
+  }
+}
+
 // ==========================================
 // GENRES APIs
 // ==========================================
@@ -204,13 +222,15 @@ export async function getMoviesByGenre(genreId, language = "en-US", page = 1) {
 // MOVIE STREAMING URL
 // ==========================================
 
-export function getMovieStreamUrl(id, server = "vidlink") {
+export function getMovieStreamUrl(id, server = "vidlink", lang = "en-US") {
+  const shortLang = lang.split("-")[0];
+
   switch (server) {
     case "vidlink":
-      return `https://vidlink.pro/movie/${id}`;
+      return `https://vidlink.pro/movie/${id}?primaryColor=f59e0b`;
 
     case "vidsrc_cc":
-      return `https://vidsrc.cc/v2/embed/movie/${id}`;
+      return `https://vidsrc.cc/v2/embed/movie/${id}?lang=${shortLang}`;
 
     case "smashystream":
       return `https://embed.smashystream.com/playere.php?tmdb=${id}`;
@@ -312,14 +332,17 @@ export function getTVStreamUrl(
   id,
   season = 1,
   episode = 1,
-  server = "vidlink"
+  server = "vidlink",
+  lang = "en-US"
 ) {
+  const shortLang = lang.split("-")[0];
+
   switch (server) {
     case "vidlink":
-      return `https://vidlink.pro/tv/${id}/${season}/${episode}`;
+      return `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=f59e0b`;
 
     case "vidsrc_cc":
-      return `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}`;
+      return `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}?lang=${shortLang}`;
 
     case "smashystream":
       return `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${season}&episode=${episode}`;
@@ -336,7 +359,46 @@ export function getTVStreamUrl(
 }
 
 // ==========================================
-// BACKWARD COMPATIBILITY
+// BACKWARD COMPATIBILITY & ASIAN CONTENT
 // ==========================================
+
+export async function getKoreanContent() {
+  try {
+    const res = await fetch(
+      `${BASE_URL}/discover/tv?api_key=${API_KEY}&with_original_language=ko&sort_by=popularity.desc`
+    );
+    const data = await res.json();
+    return data.results || [];
+  } catch (error) {
+    console.error("Error fetching Korean content:", error);
+    return [];
+  }
+}
+
+export async function getBollywoodMovies() {
+  try {
+    const res = await fetch(
+      `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_original_language=hi&sort_by=popularity.desc`
+    );
+    const data = await res.json();
+    return data.results || [];
+  } catch (error) {
+    console.error("Error fetching Bollywood movies:", error);
+    return [];
+  }
+}
+
+export async function getAnimeShows() {
+  try {
+    const res = await fetch(
+      `${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16&with_original_language=ja&sort_by=popularity.desc`
+    );
+    const data = await res.json();
+    return data.results || [];
+  } catch (error) {
+    console.error("Error fetching Anime shows:", error);
+    return [];
+  }
+}
 
 export const fetchMovies = getPopularMovies;

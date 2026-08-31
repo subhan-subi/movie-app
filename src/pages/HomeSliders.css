@@ -1,0 +1,53 @@
+/* Scrollbar aur Flex Wrapper */
+.horizontal-scroll-container {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  padding: 0.5rem 0.25rem 1rem 0.25rem;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Custom Scrollbar Styling */
+.horizontal-scroll-container::-webkit-scrollbar {
+  height: 6px;
+}
+.horizontal-scroll-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+.horizontal-scroll-container::-webkit-scrollbar-thumb {
+  background: #f59e0b; /* Yellow Accent */
+  border-radius: 10px;
+}
+
+/* FIX: Specific Width Wrapper to Prevent Card Squishing */
+.slider-card-wrapper {
+  flex: 0 0 180px; /* Fixed card width */
+  max-width: 180px;
+  min-width: 180px;
+}
+
+@media (min-width: 768px) {
+  .slider-card-wrapper {
+    flex: 0 0 200px;
+    max-width: 200px;
+    min-width: 200px;
+  }
+}
+
+/* Override Bootstrap grid constraints inside sliders */
+.horizontal-scroll-container .col,
+.horizontal-scroll-container [class*="col-"] {
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: none !important;
+}
+
+/* Optional Card Aspect Ratio Enforcement */
+.slider-card-wrapper img {
+  width: 100%;
+  height: 270px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}

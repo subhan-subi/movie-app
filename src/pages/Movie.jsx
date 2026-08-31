@@ -10,7 +10,7 @@ import {
 import { MovieCard } from "../components/MovieCard";
 import { WishlistContext } from "../context/WishlistContext";
 import "./Movie.css";
-
+// import { AdBanner } from "../components/AdBanner";
 export function Movie() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -375,6 +375,7 @@ export function Movie() {
                   allowFullScreen
                   className="movie-video-frame"
                 ></iframe>
+                {/* <AdBanner /> */}
               </div>
 
               <div className="movie-player-note">

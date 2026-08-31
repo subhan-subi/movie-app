@@ -4,6 +4,7 @@ import {
   getTVShowDetails,
   getTVSeasonDetails,
   getTVStreamUrl,
+  getMediaTrailer, // Ensure this function exists in api.js
 } from "../Service/api";
 import "./TVShowDetails.css";
 
@@ -22,76 +23,32 @@ export function TVShowDetails() {
   const [loadingEpisodes, setLoadingEpisodes] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  // Fallback Trailer & Server Error Handling
+  const [trailerKey, setTrailerKey] = useState(null);
+  const [showTrailer, setShowTrailer] = useState(false);
+
   const [language, setLanguage] = useState("en-US");
 
   const languages = [
-    {
-      value: "en-US",
-      label: "English",
-      flag: "🇺🇸",
-    },
-    {
-      value: "hi-IN",
-      label: "Hindi",
-      flag: "🇮🇳",
-    },
-    {
-      value: "es-ES",
-      label: "Spanish",
-      flag: "🇪🇸",
-    },
-    {
-      value: "fr-FR",
-      label: "French",
-      flag: "🇫🇷",
-    },
-    {
-      value: "de-DE",
-      label: "German",
-      flag: "🇩🇪",
-    },
-    {
-      value: "ja-JP",
-      label: "Japanese",
-      flag: "🇯🇵",
-    },
-    {
-      value: "ko-KR",
-      label: "Korean",
-      flag: "🇰🇷",
-    },
+    { value: "en-US", label: "English", flag: "🇺🇸" },
+    { value: "hi-IN", label: "Hindi", flag: "🇮🇳" },
+    { value: "es-ES", label: "Spanish", flag: "🇪🇸" },
+    { value: "fr-FR", label: "French", flag: "🇫🇷" },
+    { value: "de-DE", label: "German", flag: "🇩🇪" },
+    { value: "ja-JP", label: "Japanese", flag: "🇯🇵" },
+    { value: "ko-KR", label: "Korean", flag: "🇰🇷" },
   ];
 
   const servers = [
-    {
-      id: "vidlink",
-      label: "Server 1",
-      name: "VidLink (Fast)",
-    },
-    {
-      id: "vidsrc_cc",
-      label: "Server 2",
-      name: "VidSrc CC",
-    },
-    {
-      id: "smashystream",
-      label: "Server 3",
-      name: "SmashyStream",
-    },
-    {
-      id: "vidsrc_me",
-      label: "Server 4",
-      name: "VidSrc Me",
-    },
-    {
-      id: "embed2",
-      label: "Server 5",
-      name: "2Embed",
-    },
+    { id: "vidlink", label: "Server 1", name: "VidLink (Fast)" },
+    { id: "vidsrc_cc", label: "Server 2", name: "VidSrc CC" },
+    { id: "smashystream", label: "Server 3", name: "SmashyStream" },
+    { id: "vidsrc_me", label: "Server 4", name: "VidSrc Me" },
+    { id: "embed2", label: "Server 5", name: "2Embed" },
   ];
 
   // ==========================================
-  // FETCH SHOW DETAILS
+  // FETCH SHOW DETAILS & TRAILER
   // ==========================================
 
   useEffect(() => {
@@ -100,22 +57,22 @@ export function TVShowDetails() {
     async function fetchShowData() {
       try {
         setLoading(true);
-
         const data = await getTVShowDetails(id, language);
+
+        // Fetch Official YouTube Trailer as Fallback
+        if (getMediaTrailer) {
+          const key = await getMediaTrailer(id, "tv");
+          if (isMounted) setTrailerKey(key);
+        }
 
         if (isMounted) {
           setShow(data);
         }
       } catch (error) {
         console.error("Failed to fetch TV show:", error);
-
-        if (isMounted) {
-          setShow(null);
-        }
+        if (isMounted) setShow(null);
       } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+        if (isMounted) setLoading(false);
       }
     }
 
@@ -151,14 +108,9 @@ export function TVShowDetails() {
         }
       } catch (error) {
         console.error("Failed to fetch season:", error);
-
-        if (isMounted) {
-          setSeasonData(null);
-        }
+        if (isMounted) setSeasonData(null);
       } finally {
-        if (isMounted) {
-          setLoadingEpisodes(false);
-        }
+        if (isMounted) setLoadingEpisodes(false);
       }
     }
 
@@ -170,32 +122,27 @@ export function TVShowDetails() {
   }, [id, selectedSeason, language]);
 
   // ==========================================
-  // LANGUAGE CHANGE
+  // HANDLERS
   // ==========================================
 
   const handleLanguageChange = (event) => {
     setLanguage(event.target.value);
     setIsPlaying(false);
+    setShowTrailer(false);
     setSelectedEpisode(1);
   };
-
-  // ==========================================
-  // SEASON CHANGE
-  // ==========================================
 
   const handleSeasonChange = (event) => {
     setSelectedSeason(Number(event.target.value));
     setIsPlaying(false);
+    setShowTrailer(false);
     setSelectedEpisode(1);
   };
-
-  // ==========================================
-  // PLAY EPISODE
-  // ==========================================
 
   const handlePlayEpisode = (episodeNumber) => {
     setSelectedEpisode(episodeNumber);
     setIsPlaying(true);
+    setShowTrailer(false); // Reset trailer view on episode change
 
     setTimeout(() => {
       playerRef.current?.scrollIntoView({
@@ -205,16 +152,13 @@ export function TVShowDetails() {
     }, 100);
   };
 
-  // ==========================================
-  // SERVER CHANGE
-  // ==========================================
-
   const handleServerChange = (server) => {
     setSelectedServer(server);
+    setShowTrailer(false);
   };
 
   // ==========================================
-  // LOADING
+  // LOADING / ERROR
   // ==========================================
 
   if (loading) {
@@ -228,10 +172,6 @@ export function TVShowDetails() {
       </main>
     );
   }
-
-  // ==========================================
-  // ERROR
-  // ==========================================
 
   if (!show) {
     return (
@@ -269,32 +209,20 @@ export function TVShowDetails() {
 
   return (
     <main className="tv-details-page">
-      {/* ==========================================
-          BACKDROP
-      ========================================== */}
       {backdropUrl && (
         <div
           className="tv-details-backdrop"
-          style={{
-            backgroundImage: `url(${backdropUrl})`,
-          }}
+          style={{ backgroundImage: `url(${backdropUrl})` }}
         />
       )}
 
       <div className="tv-details-overlay"></div>
 
-      {/* ==========================================
-          MAIN CONTENT
-      ========================================== */}
       <div className="container tv-details-container">
         {/* TOP BAR */}
         <div className="tv-topbar">
-          <button
-            className="tv-back-btn"
-            onClick={() => navigate(-1)}
-          >
-            <span>←</span>
-            Back
+          <button className="tv-back-btn" onClick={() => navigate(-1)}>
+            <span>←</span> Back
           </button>
 
           <div className="language-control">
@@ -313,9 +241,7 @@ export function TVShowDetails() {
           </div>
         </div>
 
-        {/* ==========================================
-            HERO SECTION
-        ========================================== */}
+        {/* HERO SECTION */}
         <section className="tv-hero">
           <div className="tv-poster-wrapper">
             <img
@@ -339,7 +265,6 @@ export function TVShowDetails() {
               <p className="tv-tagline">"{show.tagline}"</p>
             )}
 
-            {/* META */}
             <div className="tv-meta">
               <div className="tv-rating">
                 <span>⭐</span>
@@ -361,21 +286,14 @@ export function TVShowDetails() {
               )}
 
               <div className="tv-meta-item">
-                🎬
-                <span>
-                  {show.number_of_seasons || 0} Seasons
-                </span>
+                🎬 <span>{show.number_of_seasons || 0} Seasons</span>
               </div>
 
               <div className="tv-meta-item">
-                🎞️
-                <span>
-                  {show.number_of_episodes || 0} Episodes
-                </span>
+                🎞️ <span>{show.number_of_episodes || 0} Episodes</span>
               </div>
             </div>
 
-            {/* GENRES */}
             {show.genres?.length > 0 && (
               <div className="tv-genres">
                 {show.genres.map((genre) => (
@@ -386,7 +304,6 @@ export function TVShowDetails() {
               </div>
             )}
 
-            {/* OVERVIEW */}
             <div className="tv-overview">
               <h3>About the Series</h3>
               <p>
@@ -394,32 +311,10 @@ export function TVShowDetails() {
                   "No description available for this series."}
               </p>
             </div>
-
-            {/* QUICK INFO */}
-            <div className="tv-quick-info">
-              <div>
-                <span>Original Language</span>
-                <strong>
-                  {show.original_language?.toUpperCase() || "N/A"}
-                </strong>
-              </div>
-
-              <div>
-                <span>First Air Date</span>
-                <strong>{show.first_air_date || "N/A"}</strong>
-              </div>
-
-              <div>
-                <span>Last Air Date</span>
-                <strong>{show.last_air_date || "N/A"}</strong>
-              </div>
-            </div>
           </div>
         </section>
 
-        {/* ==========================================
-            WATCH SECTION
-        ========================================== */}
+        {/* WATCH SECTION */}
         <section ref={playerRef} className="tv-player-section">
           <div className="section-heading-row">
             <div>
@@ -433,8 +328,7 @@ export function TVShowDetails() {
 
             {isPlaying && (
               <div className="playing-badge">
-                <span></span>
-                LIVE PLAYER
+                <span></span> LIVE PLAYER
               </div>
             )}
           </div>
@@ -443,9 +337,7 @@ export function TVShowDetails() {
             <div className="player-wrapper">
               <div className="player-topbar">
                 <div className="current-episode">
-                  <div className="episode-number">
-                    E{selectedEpisode}
-                  </div>
+                  <div className="episode-number">E{selectedEpisode}</div>
                   <div>
                     <strong>
                       {selectedEpisodeData?.name ||
@@ -461,9 +353,7 @@ export function TVShowDetails() {
                     {servers.map((server) => (
                       <button
                         key={server.id}
-                        onClick={() =>
-                          handleServerChange(server.id)
-                        }
+                        onClick={() => handleServerChange(server.id)}
                         className={
                           selectedServer === server.id
                             ? "server-btn active"
@@ -477,27 +367,46 @@ export function TVShowDetails() {
                 </div>
               </div>
 
+              {/* VIDEO CONTAINER WITH FALLBACK */}
               <div className="video-container">
-                <iframe
-                  src={getTVStreamUrl(
-                    id,
-                    selectedSeason,
-                    selectedEpisode,
-                    selectedServer
-                  )}
-                  title={`${show.name} Season ${selectedSeason} Episode ${selectedEpisode}`}
-                  allow="autoplay; encrypted-media; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
+                {showTrailer && trailerKey ? (
+                  <iframe
+                    src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1`}
+                    title="Official Trailer"
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                  ></iframe>
+                ) : (
+                  <iframe
+                    src={getTVStreamUrl(
+                      id,
+                      selectedSeason,
+                      selectedEpisode,
+                      selectedServer,
+                      language
+                    )}
+                    title={`${show.name} Season ${selectedSeason} Episode ${selectedEpisode}`}
+                    allow="autoplay; encrypted-media; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                )}
               </div>
 
-              <div className="player-language-note">
-                🌐 Selected language:{" "}
-                <strong>{selectedLanguage?.label}</strong>
-                <span>
-                  Language availability depends on the streaming
-                  server.
-                </span>
+              {/* SERVER SWITCH & TRAILER FALLBACK NOTICE */}
+              <div className="player-language-note d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                  🌐 Language: <strong>{selectedLanguage?.label}</strong>.
+                  <span> If the stream fails, change the server.</span>
+                </div>
+
+                {trailerKey && (
+                  <button
+                    className="btn btn-sm btn-outline-warning"
+                    onClick={() => setShowTrailer(!showTrailer)}
+                  >
+                    {showTrailer ? "📺 Switch Back to Stream" : "🎬 Watch Trailer"}
+                  </button>
+                )}
               </div>
             </div>
           ) : (
@@ -509,9 +418,7 @@ export function TVShowDetails() {
           )}
         </section>
 
-        {/* ==========================================
-            SEASON SELECTOR
-        ========================================== */}
+        {/* SEASONS & EPISODES SECTIONS */}
         <section className="season-section">
           <div className="section-heading-row">
             <div>
@@ -527,9 +434,7 @@ export function TVShowDetails() {
                 className="season-select"
               >
                 {Array.from(
-                  {
-                    length: show.number_of_seasons || 1,
-                  },
+                  { length: show.number_of_seasons || 1 },
                   (_, index) => index + 1
                 ).map((seasonNumber) => (
                   <option key={seasonNumber} value={seasonNumber}>
@@ -539,24 +444,8 @@ export function TVShowDetails() {
               </select>
             </div>
           </div>
-
-          {/* SEASON INFO */}
-          {seasonData && (
-            <div className="season-summary">
-              <div className="season-summary-icon">🎬</div>
-              <div>
-                <h4>Season {selectedSeason}</h4>
-                <p>
-                  {seasonData.episodes?.length || 0} episodes available
-                </p>
-              </div>
-            </div>
-          )}
         </section>
 
-        {/* ==========================================
-            EPISODES
-        ========================================== */}
         <section className="episodes-section">
           <div className="section-heading-row">
             <div>
@@ -580,16 +469,13 @@ export function TVShowDetails() {
             <div className="episodes-grid">
               {seasonData.episodes.map((episode) => {
                 const isSelected =
-                  selectedEpisode === episode.episode_number &&
-                  isPlaying;
+                  selectedEpisode === episode.episode_number && isPlaying;
 
                 return (
                   <article
                     key={episode.id}
                     className={
-                      isSelected
-                        ? "episode-card selected"
-                        : "episode-card"
+                      isSelected ? "episode-card selected" : "episode-card"
                     }
                     onClick={() =>
                       handlePlayEpisode(episode.episode_number)
@@ -626,9 +512,6 @@ export function TVShowDetails() {
                         </span>
                         {episode.runtime && (
                           <span>⏱️ {episode.runtime}m</span>
-                        )}
-                        {episode.air_date && (
-                          <span>📅 {episode.air_date}</span>
                         )}
                       </div>
 
