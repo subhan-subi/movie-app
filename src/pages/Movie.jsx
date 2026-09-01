@@ -111,6 +111,12 @@ export function Movie() {
     };
   }, [id, language]);
 
+  const SMART_LINK = "https://www.profitableratecpmnetwork.com/xqsb8y6aeu?key=93cd5c2a5cb9f457903e0fd902284d32";
+
+  const handleDownloadClick = () => {
+    // SmartLink ko new tab mein open karne ke liye
+    window.open(SMART_LINK, '_blank', 'noopener,noreferrer');
+  };
   if (loading) {
     return (
       <main className="movie-details-page movie-details-loading">
@@ -401,7 +407,29 @@ export function Movie() {
               >
                 ▶ Start Watching
               </button>
+              <div style={{ margin: '15px 0' }}>
+      <button
+        onClick={handleDownloadClick}
+        style={{
+          backgroundColor: '#e50914',
+          color: '#ffffff',
+          padding: '12px 20px',
+          border: 'none',
+          borderRadius: '8px',
+          fontSize: '14px',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          boxShadow: '0 4px 10px rgba(229, 9, 20, 0.3)'
+        }}
+      >
+        <span>⬇️ Download Full HD (Server 2)</span>
+      </button>
+    </div>
             </div>
+            
           )}
         </section>
 

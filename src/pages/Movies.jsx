@@ -149,6 +149,7 @@ const activeTitle =
 categories.find((category) => category.id === activeCategory)?.label ||
 "Movies";
 
+
 return ( <main className="movies-page">
 {/* ================= HERO ================= */} <section className="movies-hero"> <div className="movies-hero-glow glow-one"></div> <div className="movies-hero-glow glow-two"></div>
 
